@@ -1,37 +1,32 @@
 package BTEC.ASM.project.identity.dto.request;
 
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Set;
 
-@Getter
-@Setter
-public class CreateUserRequest {
+public record CreateUserRequest(
 
-    @NotBlank(message = "User code không được để trống")
-    @Size(max = 50)
-    private String userCode;
+        @NotBlank(message = "User code must not be blank")
+        @Size(max = 50, message = "User code must not exceed 50 characters")
+        String userCode,
 
-    @NotBlank(message = "Họ tên không được để trống")
-    @Size(max = 255)
-    private String fullName;
+        @NotBlank(message = "Full name must not be blank")
+        @Size(max = 255, message = "Full name must not exceed 255 characters")
+        String fullName,
 
-    @Email(message = "Email không đúng định dạng")
-    @Size(max = 255)
-    private String email;
+        @Email(message = "Email must be a valid email address")
+        @Size(max = 255, message = "Email must not exceed 255 characters")
+        String email,
 
-    @NotBlank(message = "Status không được để trống")
-    @Pattern(
-            regexp = "ACTIVE|INACTIVE|BLOCKED",
-            message = "Status phải là ACTIVE, INACTIVE hoặc BLOCKED"
-    )
-    private String status;
+        @NotBlank(message = "Status must not be blank")
+        @Pattern(
+                regexp = "ACTIVE|INACTIVE|BLOCKED",
+                message = "Status must be one of: ACTIVE, INACTIVE, BLOCKED"
+        )
+        String status,
 
-    @NotEmpty(message = "User phải có ít nhất 1 role")
-    private Set<
-            @NotNull(message = "Role id không được null")
-                    Integer
-            > roleIds;
-}
+        @NotEmpty(message = "User must have at least one role")
+        Set<
+                @NotNull(message = "Role id must not be null")
+                        Integer
+                > roleIds
+) {}
