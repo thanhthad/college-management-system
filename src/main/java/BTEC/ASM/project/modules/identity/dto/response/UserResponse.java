@@ -1,4 +1,4 @@
-package BTEC.ASM.project.modules.identity.dto.reponse;
+package BTEC.ASM.project.modules.identity.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,15 +1,13 @@
 package BTEC.ASM.project.modules.identity.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
-public record LoginRequest(
+@Getter
+@Setter
+public class LoginRequest {
 
-        @NotBlank(message = "User code must not be blank")
-        @Size(max = 50, message = "User code must not exceed 50 characters")
-        String userCode,
-
-        @NotBlank(message = "Password must not be blank")
-        @Size(min = 6, max = 100, message = "Password length must be between 6 and 100 characters")
-        String password
-) {}
+    @NotBlank(message = "User code không được để trống")
+    private String userCode;
+}
