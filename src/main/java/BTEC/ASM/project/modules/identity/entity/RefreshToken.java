@@ -1,6 +1,8 @@
 package BTEC.ASM.project.modules.identity.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +29,9 @@ public class RefreshToken {
     @Column(nullable = false)
     private LocalDateTime expiredAt;
 
+    @Column(nullable = false)
     private boolean revoked;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

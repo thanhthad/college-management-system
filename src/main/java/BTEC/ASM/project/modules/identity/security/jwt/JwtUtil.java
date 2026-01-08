@@ -11,36 +11,42 @@ import java.util.List;
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final String SECRET_KEY = "VERY_SECRET_KEY_12345678901234567890";
+    private final long ACCESS_TOKEN_EXPIRE = 1000 * 60 * 15; // 15 phút
 
-    private final long ACCESS_TOKEN_EXP = 15 * 60 * 1000; // 15 phút
-    private final long REFRESH_TOKEN_EXP = 7 * 24 * 60 * 60 * 1000; // 7 ngày
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
 
-    public String generateAccessToken(Long userId, String email, List<String> roles) {
+    public String generateAccessToken(Long userId, String userCode, List<String> roles) {
         return Jwts.builder()
                 .setSubject(userId.toString())
-                .claim("email", email)
+                .claim("userCode", userCode)
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXP))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
-        return Jwts.builder()
-                .setSubject(userId.toString())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXP))
-                .signWith(key)
-                .compact();
-    }
-
-    public Claims parseToken(String token) {
+    public Claims extractClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public Long getUserId(String token) {
+        return Long.parseLong(extractClaims(token).getSubject());
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            extractClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }

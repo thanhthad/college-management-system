@@ -28,7 +28,7 @@ public class User {
     @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
-    @Column(length = 255)
+    @Column(length = 255,unique = true,nullable = false)
     private String email;
 
     @Column(length = 50)
@@ -40,6 +40,8 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     private Set<UserRole> userRoles;
+
+
 }

@@ -1,8 +1,10 @@
 package BTEC.ASM.project.modules.identity.security.oauth2;
 
-import BTEC.ASM.project.modules.identity.service.OAuth2AuthService;
-import BTEC.ASM.project.modules.identity.service.TokenService;
-import BTEC.ASM.project.modules.identity.service.TokenService.TokenPair;
+import BTEC.ASM.project.modules.identity.entity.RefreshToken;
+import BTEC.ASM.project.modules.identity.entity.User;
+import BTEC.ASM.project.modules.identity.repository.UserRepository;
+import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
+import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,14 +16,21 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    private final OAuth2AuthService oAuth2AuthService;
-    private final TokenService tokenService;
+    private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtUtil jwtUtil;
+
+    private static final String FRONTEND_REDIRECT_URL =
+            "http://localhost:3000/oauth2/success";
 
     @Override
     public void onAuthenticationSuccess(
@@ -34,33 +43,34 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = (String) oAuth2User.getAttributes().get("email");
 
         if (email == null || email.isBlank()) {
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Không lấy được email từ Google"
-            );
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Email not found");
             return;
         }
 
-        log.info("✅ OAuth2 login success: {}", email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email not allowed"));
 
-        // 1️⃣ Xác thực user nội bộ
-        OAuth2AuthService.AuthResult authResult =
-                oAuth2AuthService.authenticateByEmail(email);
+        List<String> roles = user.getUserRoles()
+                .stream()
+                .map(ur -> ur.getRole().getRoleCode())
+                .toList();
 
-        // 2️⃣ Generate JWT
-        TokenPair tokenPair = tokenService.generateTokens(
-                authResult.userId(),
-                authResult.email(),
-                authResult.roles()
+        // Always generate new access token
+        String accessToken = jwtUtil.generateAccessToken(
+                user.getId(),
+                user.getUserCode(),
+                roles
         );
 
-        // 3️⃣ Gửi access token qua header (ASM-SAFE)
-        response.setHeader(
-                "Authorization",
-                "Bearer " + tokenPair.accessToken()
-        );
+        // Reuse refresh token if still valid
+        RefreshToken refreshToken = refreshTokenService
+                .findOptionalValidByUser(user)
+                .orElseGet(() -> refreshTokenService.create(user));
 
-        // 4️⃣ Redirect về frontend
-        response.sendRedirect("http://localhost:3000/oauth2/success");
+        String redirectUrl = FRONTEND_REDIRECT_URL
+                + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
+                + "&refreshToken=" + URLEncoder.encode(refreshToken.getToken(), StandardCharsets.UTF_8);
+
+        response.sendRedirect(redirectUrl);
     }
 }
