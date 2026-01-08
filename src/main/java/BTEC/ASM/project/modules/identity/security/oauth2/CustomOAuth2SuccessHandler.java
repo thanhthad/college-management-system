@@ -40,6 +40,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     ) throws IOException, ServletException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
+        //Bcrypt in future
         String email = (String) oAuth2User.getAttributes().get("email");
 
         if (email == null || email.isBlank()) {
