@@ -1,6 +1,7 @@
 package BTEC.ASM.project.modules.identity.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Table(name = "user_roles")
 @Getter
 @Setter
+@Builder
 public class UserRole {
 
     @EmbeddedId

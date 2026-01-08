@@ -1,4 +1,4 @@
-package BTEC.ASM.project.modules.identity.security;
+package BTEC.ASM.project.modules.identity.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;

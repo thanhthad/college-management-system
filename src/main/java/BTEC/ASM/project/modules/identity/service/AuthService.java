@@ -5,7 +5,7 @@ import BTEC.ASM.project.modules.identity.dto.response.LoginResponse;
 import BTEC.ASM.project.modules.identity.entity.User;
 import BTEC.ASM.project.modules.identity.repository.UserRepository;
 import BTEC.ASM.project.modules.identity.repository.UserRoleRepository;
-import BTEC.ASM.project.modules.identity.security.JwtUtil;
+import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,4 +44,5 @@ public class AuthService {
 
         return new LoginResponse(accessToken, refreshToken);
     }
+
 }
