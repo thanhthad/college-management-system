@@ -2,6 +2,7 @@ package BTEC.ASM.project.modules.identity.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -40,6 +41,7 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
     private Set<UserRole> userRoles;
 

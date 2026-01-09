@@ -5,7 +5,6 @@ import BTEC.ASM.project.modules.identity.entity.User;
 import BTEC.ASM.project.modules.identity.repository.UserRepository;
 import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,63 +15,62 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final JwtUtil jwtUtil;
 
-    private static final String FRONTEND_REDIRECT_URL =
-            "http://localhost:3000/oauth2/success";
-
     @Override
     public void onAuthenticationSuccess(
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication
-    ) throws IOException, ServletException {
+    ) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        //Bcrypt in future
         String email = (String) oAuth2User.getAttributes().get("email");
-
         if (email == null || email.isBlank()) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Email not found");
             return;
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email not allowed"));
+                .orElseThrow(() -> new RuntimeException("User not allowed"));
 
         List<String> roles = user.getUserRoles()
                 .stream()
                 .map(ur -> ur.getRole().getRoleCode())
                 .toList();
 
-        // Always generate new access token
+        // ACCESS TOKEN
         String accessToken = jwtUtil.generateAccessToken(
                 user.getId(),
                 user.getUserCode(),
                 roles
         );
 
-        // Reuse refresh token if still valid
+        // REFRESH TOKEN
         RefreshToken refreshToken = refreshTokenService
                 .findOptionalValidByUser(user)
                 .orElseGet(() -> refreshTokenService.create(user));
 
-        String redirectUrl = FRONTEND_REDIRECT_URL
-                + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
-                + "&refreshToken=" + URLEncoder.encode(refreshToken.getToken(), StandardCharsets.UTF_8);
+        // TRẢ JSON
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
-        response.sendRedirect(redirectUrl);
+        response.getWriter().write("""
+            {
+              "accessToken": "%s",
+              "refreshToken": "%s",
+              "tokenType": "Bearer"
+            }
+        """.formatted(accessToken, refreshToken.getToken()));
     }
 }
