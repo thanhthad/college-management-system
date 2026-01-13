@@ -1,22 +1,30 @@
 package BTEC.ASM.project.common.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 
 import java.util.HashMap;
 import java.util.Map;
-
+@Data
+@AllArgsConstructor
 public class PaginationResponse {
-    public static <T> Map<String, Object> fromPage(Page<T> page) {
-        Map<String, Object> pagination = new HashMap<>();
+    private int current_page;
+    private int per_page;
+    private long total;
+    private int last_page;
+    private int from;
+    private int to;
 
-        pagination.put("current_page", page.getNumber() + 1);
-        pagination.put("from", page.getNumber() * page.getSize() + 1);
-        pagination.put("last_page", page.getTotalPages());
-        pagination.put("per_page", page.getSize());
-        pagination.put("to",
-                page.getNumber() * page.getSize() + page.getNumberOfElements());
-        pagination.put("total", page.getTotalElements());
-
-        return pagination;
+    public static PaginationResponse fromPage(Page<?> page) {
+        return new PaginationResponse(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.getNumber() * page.getSize() + 1,
+                page.getNumber() * page.getSize() + page.getNumberOfElements()
+        );
     }
 }
+

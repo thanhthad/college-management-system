@@ -7,16 +7,14 @@ import lombok.Data;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+        "success",
         "message",
-        "status_code",
         "data",
-        "pagination",
-        "additional_data"
+        "pagination"
 })
 public class ApiResponse<T> {
+    private boolean success;
     private String message;
-    private int status_code;
     private T data;
-    private Object pagination;
-    private Object additional_data;
+    private PaginationResponse pagination;
 }
