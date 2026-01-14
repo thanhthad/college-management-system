@@ -12,9 +12,9 @@ public interface SubjectService {
 
     List<SubjectResponse> getAll();
 
-    Optional<SubjectResponse> getById(Long id);
+    SubjectResponse getById(Long id);
 
-    Optional<SubjectResponse> update(Long id, SubjectRequest request);
+    SubjectResponse update(Long id, SubjectRequest request);
 
-    boolean delete(Long id);
+    void delete(Long id);
 }

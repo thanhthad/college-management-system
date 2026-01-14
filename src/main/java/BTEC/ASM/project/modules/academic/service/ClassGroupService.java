@@ -12,9 +12,9 @@ public interface ClassGroupService {
 
     List<ClassGroupResponse> getAll();
 
-    Optional<ClassGroupResponse> getById(Long id);
+    ClassGroupResponse getById(Long id);
 
-    Optional<ClassGroupResponse> update(Long id, ClassGroupRequest request);
+    ClassGroupResponse update(Long id, ClassGroupRequest request);
 
-    boolean delete(Long id);
+    void delete(Long id);
 }

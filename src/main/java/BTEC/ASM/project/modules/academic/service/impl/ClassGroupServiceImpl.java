@@ -3,6 +3,8 @@ package BTEC.ASM.project.modules.academic.service.impl;
 import BTEC.ASM.project.modules.academic.dto.request.ClassGroupRequest;
 import BTEC.ASM.project.modules.academic.dto.response.ClassGroupResponse;
 import BTEC.ASM.project.modules.academic.entity.ClassGroup;
+import BTEC.ASM.project.modules.academic.exception.ClassGroupAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.ClassGroupNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.ClassGroupMapper;
 import BTEC.ASM.project.modules.academic.repository.ClassGroupRepository;
 import BTEC.ASM.project.modules.academic.service.ClassGroupService;
@@ -24,6 +26,9 @@ public class ClassGroupServiceImpl implements ClassGroupService {
 
     @Override
     public ClassGroupResponse create(ClassGroupRequest request) {
+        if(classGroupRepository.findByGroupName(request.groupName()).isPresent()) {
+            throw new ClassGroupAlreadyExistsException("Class Group Already Exists");
+        }
         ClassGroup entity = classGroupMapper.toEntity(request);
         classGroupRepository.save(entity);
         return classGroupMapper.toResponse(entity);
@@ -37,27 +42,27 @@ public class ClassGroupServiceImpl implements ClassGroupService {
     }
 
     @Override
-    public Optional<ClassGroupResponse> getById(Long id) {
-        return classGroupRepository.findById(id)
-                .map(classGroupMapper::toResponse);
+    public ClassGroupResponse getById(Long id) {
+        ClassGroup classGroup = classGroupRepository.findById(id).orElseThrow(
+                () -> new ClassGroupNotFoundException("Class Group not found")
+        );
+        return classGroupMapper.toResponse(classGroup);
     }
 
     @Override
-    public Optional<ClassGroupResponse> update(Long id, ClassGroupRequest request) {
-        return classGroupRepository.findById(id)
-                .map(existing -> {
-                    classGroupMapper.updateClassGroupFromRequest(request, existing);
-                    classGroupRepository.save(existing);
-                    return classGroupMapper.toResponse(existing);
-                });
+    public ClassGroupResponse update(Long id, ClassGroupRequest request) {
+        ClassGroup classGroup = classGroupRepository.findById(id).orElseThrow(
+                () -> new ClassGroupNotFoundException("Class Group not found")
+        );
+        classGroupMapper.updateClassGroupFromRequest(request,classGroup);
+        return classGroupMapper.toResponse(classGroupRepository.save(classGroup));
     }
 
     @Override
-    public boolean delete(Long id) {
-        if(classGroupRepository.existsById(id)){
-            classGroupRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public void delete(Long id) {
+        ClassGroup classGroup = classGroupRepository.findById(id).orElseThrow(
+                ()-> new ClassGroupNotFoundException("Class Group not found")
+        );
+        classGroupRepository.deleteById(id);
     }
 }

@@ -3,6 +3,8 @@ package BTEC.ASM.project.modules.academic.service.impl;
 import BTEC.ASM.project.modules.academic.dto.request.SubjectRequest;
 import BTEC.ASM.project.modules.academic.dto.response.SubjectResponse;
 import BTEC.ASM.project.modules.academic.entity.Subject;
+import BTEC.ASM.project.modules.academic.exception.SubjectAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.SubjectNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.SubjectMapper;
 import BTEC.ASM.project.modules.academic.repository.SubjectRepository;
 import BTEC.ASM.project.modules.academic.service.SubjectService;
@@ -24,6 +26,9 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public SubjectResponse create(SubjectRequest request) {
+        if(subjectRepository.existsBySubjectCode(request.subjectCode())){
+            throw new SubjectAlreadyExistsException("Subject is already exists");
+        }
         Subject entity = subjectMapper.toEntity(request);
         subjectRepository.save(entity);
         return subjectMapper.toResponse(entity);
@@ -37,27 +42,26 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Optional<SubjectResponse> getById(Long id) {
-        return subjectRepository.findById(id)
-                .map(subjectMapper::toResponse);
+    public SubjectResponse getById(Long id) {
+        Subject subject = subjectRepository.findById(id).orElseThrow(
+                () -> new SubjectNotFoundException("Subject not found")
+        );
+        return subjectMapper.toResponse(subject);
     }
 
     @Override
-    public Optional<SubjectResponse> update(Long id, SubjectRequest request) {
-        return subjectRepository.findById(id)
-                .map(existing -> {
-                    subjectMapper.updateSubjectFromRequest(request, existing);
-                    subjectRepository.save(existing);
-                    return subjectMapper.toResponse(existing);
-                });
+    public SubjectResponse update(Long id, SubjectRequest request) {
+        Subject subject = subjectRepository.findById(id).orElseThrow(
+                () -> new SubjectNotFoundException("Subject not found")
+        );
+        subjectMapper.updateSubjectFromRequest(request,subject);
+        return subjectMapper.toResponse(subjectRepository.save(subject));
     }
 
     @Override
-    public boolean delete(Long id) {
+    public void delete(Long id) {
         if(subjectRepository.existsById(id)){
             subjectRepository.deleteById(id);
-            return true;
         }
-        return false;
     }
 }

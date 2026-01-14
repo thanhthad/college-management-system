@@ -12,9 +12,9 @@ public interface TermService {
 
     List<TermResponse> getAll();
 
-    Optional<TermResponse> getById(Long id);
+    TermResponse getById(Long id);
 
-    Optional<TermResponse> update(Long id, TermRequest request);
+    TermResponse update(Long id, TermRequest request);
 
-    boolean delete(Long id);
+    void delete(Long id);
 }
