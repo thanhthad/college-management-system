@@ -2,63 +2,83 @@ package BTEC.ASM.project.common.exception;
 
 import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
+import BTEC.ASM.project.modules.academic.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle validation errors (@Valid)
-     */
+    // ===== VALIDATION =====
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidationException(
+    public ResponseEntity<ApiResponse<Object>> handleValidation(
             MethodArgumentNotValidException ex
     ) {
-        Map<String, String> errors = new HashMap<>();
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation failed");
 
-//        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-//            errors.put(error.getField(), error.getDefaultMessage());
-//        }
-//        return ResponseData.fail("Validation failed",HttpStatus.BAD_REQUEST);
+        return ResponseData.fail(message, HttpStatus.BAD_REQUEST);
+    }
+
+    // ===== 404 =====
+    @ExceptionHandler(TermNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTermNotFound(
+            TermNotFoundException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(ClassGroupNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleClassGroupNotFound(
+            ClassGroupNotFoundException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(SubjectNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleSubjectNotFound(
+            SubjectNotFoundException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    // ===== 409 =====
+    @ExceptionHandler(ClassGroupAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleClassGroupAlreadyExists(
+            ClassGroupNotFoundException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(TermAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleTermAlreadyExists(
+            TermAlreadyExistsException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(SubjectAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleSubjectAlreadyExists(
+            SubjectAlreadyExistsException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    // ===== 400 =====
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadRequest(
+            IllegalArgumentException ex
+    ) {
         return ResponseData.fail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle IllegalArgumentException
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Object>> handleIllegalArgument(
-            IllegalArgumentException ex
-    ) {
-
-        return ResponseData.fail(ex.getMessage(),HttpStatus.BAD_REQUEST);
-    }
-
-    /**
-     * Handle RuntimeException
-     */
+    // ===== 500 =====
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Object>> handleRuntimeException(
+    public ResponseEntity<ApiResponse<Object>> handleRuntime(
             RuntimeException ex
     ) {
-        return ResponseData.fail(ex.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
-     * Handle all other exceptions
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Object>> handleException(
-            Exception ex
-    ) {
-        return ResponseData.fail(ex.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseData.fail("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
