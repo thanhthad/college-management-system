@@ -2,6 +2,7 @@ package BTEC.ASM.project.modules.identity.security.oauth2;
 
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
+import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.repository.UserRepository;
 import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
@@ -42,7 +43,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not allowed"));
+                .orElseThrow(() -> new UserNotFoundException("User not allowed"));
 
         List<String> roles = user.getUserRoles()
                 .stream()

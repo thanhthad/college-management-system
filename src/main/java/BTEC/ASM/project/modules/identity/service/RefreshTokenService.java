@@ -2,6 +2,7 @@ package BTEC.ASM.project.modules.identity.service;
 
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
+import BTEC.ASM.project.modules.identity.exception.RefreshTokenNotFoundException;
 import BTEC.ASM.project.modules.identity.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,14 +38,14 @@ public class RefreshTokenService {
      */
     public RefreshToken verify(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Refresh token not found"));
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
 
         if (refreshToken.isRevoked()) {
-            throw new RuntimeException("Refresh token revoked");
+            throw new RefreshTokenNotFoundException("Refresh token revoked");
         }
 
         if (refreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new RefreshTokenNotFoundException("Refresh token expired");
         }
 
         return refreshToken;
