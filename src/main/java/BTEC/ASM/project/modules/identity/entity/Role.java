@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.identity.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,5 +26,6 @@ public class Role {
     private String roleName;
 
     @OneToMany(mappedBy = "role")
+    @JsonIgnore
     private Set<UserRole> userRoles;
 }
