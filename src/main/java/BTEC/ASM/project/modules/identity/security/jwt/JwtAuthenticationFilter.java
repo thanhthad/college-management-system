@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.identity.security.jwt;
 
+import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             Long userId = jwtUtil.getUserId(token);
+            CustomUserDetails customUserDetails = new CustomUserDetails()
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
