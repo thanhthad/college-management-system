@@ -42,14 +42,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             """);
                 return;
             }
-            Long userId = jwtUtil.getUserId(token);
-            CustomUserDetails customUserDetails = new CustomUserDetails()
+            CustomUserDetails userDetails = jwtUtil.getUserDetails(token);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userId,
+                            userDetails,
                             null,
-                            List.of()
+                            userDetails.getAuthorities()
                     );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);

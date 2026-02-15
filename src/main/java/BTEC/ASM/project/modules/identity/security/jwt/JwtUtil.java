@@ -46,7 +46,7 @@ public class JwtUtil {
         String userCode = claims.get("userCode", String.class);
         List<String> roles = claims.get("roles", List.class);
 
-        var authorities = roles.stream()
+        List<SimpleGrantedAuthority> authorities = roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
 
