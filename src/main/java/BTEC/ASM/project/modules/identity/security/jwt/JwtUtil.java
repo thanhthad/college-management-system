@@ -47,14 +47,15 @@ public class JwtUtil {
         List<String> roles = claims.get("roles", List.class);
 
         List<SimpleGrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .toList();
+        CustomUserDetails customUserDetails = new CustomUserDetails();
+        customUserDetails.setId(userId);
+        customUserDetails.setUserCode(userCode);
+        customUserDetails.setAuthorities(authorities);
+        customUserDetails.setStatus("ACTIVE");
 
-        return CustomUserDetails.builder()
-                .id(userId)
-                .userCode(userCode)
-                .authorities(authorities)
-                .build();
+        return customUserDetails;
     }
 
     public String getUserCode(String token) {
