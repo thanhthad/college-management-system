@@ -16,4 +16,5 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
             User user,
             LocalDateTime now
     );
+
 }

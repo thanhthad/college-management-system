@@ -1,14 +1,13 @@
 package BTEC.ASM.project.modules.identity.controller;
 
+import BTEC.ASM.project.common.response.ResponseData;
+import BTEC.ASM.project.modules.identity.dto.request.RefreshTokenRequest;
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
-import BTEC.ASM.project.modules.identity.entity.User;
-import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,39 +16,24 @@ import java.util.Map;
 public class AuthController {
 
     private final RefreshTokenService refreshTokenService;
-    private final JwtUtil jwtUtil;
 
     /**
      * 🔁 REFRESH ACCESS TOKEN
      */
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(
-            @RequestBody Map<String, String> request
+            @RequestBody RefreshTokenRequest request
     ) {
-        String refreshToken = request.get("refreshToken");
+        String newAccessToken =
+                refreshTokenService.generateAccessToken(request.getRefreshToken());
 
-        if (refreshToken == null || refreshToken.isBlank()) {
-            return ResponseEntity.status(401).body("Refresh token missing");
-        }
-
-        RefreshToken token = refreshTokenService.verify(refreshToken);
-        User user = token.getUser();
-
-        List<String> roles = user.getUserRoles()
-                .stream()
-                .map(ur -> ur.getRole().getRoleCode())
-                .toList();
-
-        String newAccessToken = jwtUtil.generateAccessToken(
-                user.getId(),
-                user.getUserCode(),
-                roles
+        return ResponseData.success(
+                newAccessToken,
+                "Create new access token successfully",
+                HttpStatus.OK
         );
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken
-        ));
     }
+
 
     /**
      * 🚪 LOGOUT
@@ -60,11 +44,8 @@ public class AuthController {
     ) {
         String refreshToken = request.get("refreshToken");
 
-        if (refreshToken != null) {
-            RefreshToken token = refreshTokenService.verify(refreshToken);
-            refreshTokenService.revoke(token);
-        }
+        refreshTokenService.revoke(refreshToken);
 
-        return ResponseEntity.ok("Logged out");
+        return ResponseData.success(null,"Logout successfully",HttpStatus.OK);
     }
 }

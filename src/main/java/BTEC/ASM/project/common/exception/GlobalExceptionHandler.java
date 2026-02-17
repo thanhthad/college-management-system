@@ -3,8 +3,10 @@ package BTEC.ASM.project.common.exception;
 import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
 import BTEC.ASM.project.modules.academic.exception.*;
-import BTEC.ASM.project.modules.identity.exception.RefreshTokenNotFoundException;
+import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenExpiredException;
+import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
+import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import jdk.jshell.spi.ExecutionControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,6 +62,21 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(RefreshTokenExpiredException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRefreshTokenExpired(
+            RefreshTokenExpiredException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(RefreshTokenRevokedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRefreshTokenRevoked(
+            RefreshTokenRevokedException ex
+    ) {
+        return ResponseData.fail(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
 
     // ===== 409 =====
     @ExceptionHandler(ClassGroupAlreadyExistsException.class)
