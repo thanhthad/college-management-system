@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.identity.service.impl;
 
+import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenExpiredException;
@@ -9,6 +10,7 @@ import BTEC.ASM.project.modules.identity.repository.RefreshTokenRepository;
 import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Log4j2
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private final JwtUtil jwtUtil;
@@ -28,15 +31,17 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     /**
      * Create new refresh token
      */
-    public RefreshToken create(User user) {
-        return refreshTokenRepository.save(
-                RefreshToken.builder()
-                        .token(UUID.randomUUID().toString())
-                        .user(user)
-                        .expiredAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
-                        .revoked(false)
-                        .build()
-        );
+    public RefreshToken create(User user,String ip) {
+        RefreshToken refreshToken = RefreshToken.builder()
+                .token(UUID.randomUUID().toString())
+                .user(user)
+                .expiredAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
+                .revoked(false)
+                .build();
+
+        RefreshToken saved = refreshTokenRepository.save(refreshToken);
+        log.info("AUTH_EVENT | action=REFRESH_TOKEN_CREATED | userId={} | tokenId={} | ip={}",user.getId(),saved.getId(),ip);
+        return saved;
     }
 
     /**
@@ -64,14 +69,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     /**
      * Find valid refresh token of user (optional)
      */
-    public Optional<RefreshToken> findOptionalValidByUser(User user) {
-        return refreshTokenRepository
+    public RefreshToken findValidByUser(User user, String ip) {
+        Optional<RefreshToken> token =  refreshTokenRepository
                 .findFirstByUserAndRevokedFalseAndExpiredAtAfterOrderByExpiredAtDesc(
                         user, LocalDateTime.now()
                 );
+        if(token.get() == null){
+            create(user,ip);
+        }else{
+            log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.get().getUser().getId(),token.get().getId(),ip);
+        }
+        return token.get();
     }
 
-    public String generateAccessToken(String refreshToken){
+    public String generateAccessToken(String refreshToken, String ip){
         RefreshToken token = verify(refreshToken);
         User user = token.getUser();
         List<String> roles = user.getUserRoles()
@@ -84,22 +95,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 user.getUserCode(),
                 roles
         );
+        log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.getUser().getId(),token.getId(),ip);
+
         return newAccessToken;
     }
 
     /**
      * Revoke refresh token
      */
-    public void revoke(String refreshToken) {
-        if (refreshToken == null || refreshToken.isBlank()) {
-            return;
-        }
+    public void revoke(String refreshToken , String ip) {
+        RefreshToken token = verify(refreshToken);
+        token.setRevoked(true);
+        refreshTokenRepository.save(token);
+        log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.getUser().getId(),token.getId(),ip);
 
-        refreshTokenRepository.findByToken(refreshToken)
-                .ifPresent(token -> {
-                    token.setRevoked(true);
-                    refreshTokenRepository.save(token);
-                });
     }
 
 }
