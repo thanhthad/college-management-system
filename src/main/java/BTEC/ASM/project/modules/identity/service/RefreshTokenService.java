@@ -9,13 +9,13 @@ import java.util.Optional;
 @Service
 public interface RefreshTokenService {
 
-    RefreshToken create(User user);
+    RefreshToken create(User user,String ip);
 
     RefreshToken verify(String token);
 
-    Optional<RefreshToken> findOptionalValidByUser(User user);
+    RefreshToken findValidByUser(User user , String ip);
 
-    void revoke(String refreshToken);
+    void revoke(String refreshToken, String ip);
 
-    String generateAccessToken(String refreshToken);
+    String generateAccessToken(String refreshToken, String ip);
 }

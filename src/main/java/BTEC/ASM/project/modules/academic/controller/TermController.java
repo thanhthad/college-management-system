@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/api/terms")
 @Tag(name = "Term",description = "Term management APIs")
-@SecurityRequirement(name = "bearerAuth")
 public class TermController {
     private final TermService termService;
 

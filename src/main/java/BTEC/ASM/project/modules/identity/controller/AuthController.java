@@ -1,9 +1,12 @@
 package BTEC.ASM.project.modules.identity.controller;
 
 import BTEC.ASM.project.common.response.ResponseData;
+import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.identity.dto.request.RefreshTokenRequest;
-import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "")
+@Tag(name = "Authentication",description = "Auth APIs")
+
 public class AuthController {
 
     private final RefreshTokenService refreshTokenService;
@@ -22,10 +28,11 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(
-            @RequestBody RefreshTokenRequest request
+            @RequestBody RefreshTokenRequest request,
+            HttpServletRequest httpRequest
     ) {
         String newAccessToken =
-                refreshTokenService.generateAccessToken(request.getRefreshToken());
+                refreshTokenService.generateAccessToken(request.getRefreshToken(), IpUtils.getClientIp(httpRequest));
 
         return ResponseData.success(
                 newAccessToken,
@@ -34,17 +41,15 @@ public class AuthController {
         );
     }
 
-
     /**
      * 🚪 LOGOUT
      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @RequestBody Map<String, String> request
+            @RequestBody RefreshTokenRequest request,
+            HttpServletRequest httpRequest
     ) {
-        String refreshToken = request.get("refreshToken");
-
-        refreshTokenService.revoke(refreshToken);
+        refreshTokenService.revoke(request.getRefreshToken(),IpUtils.getClientIp(httpRequest));
 
         return ResponseData.success(null,"Logout successfully",HttpStatus.OK);
     }
