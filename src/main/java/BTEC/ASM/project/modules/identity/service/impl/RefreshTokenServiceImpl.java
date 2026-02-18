@@ -8,9 +8,12 @@ import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNo
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import BTEC.ASM.project.modules.identity.repository.RefreshTokenRepository;
 import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
+import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -70,17 +73,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * Find valid refresh token of user (optional)
      */
     public RefreshToken findValidByUser(User user, String ip) {
-        Optional<RefreshToken> token =  refreshTokenRepository
+        return refreshTokenRepository
                 .findFirstByUserAndRevokedFalseAndExpiredAtAfterOrderByExpiredAtDesc(
                         user, LocalDateTime.now()
-                );
-        if(token.get() == null){
-            create(user,ip);
-        }else{
-            log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.get().getUser().getId(),token.get().getId(),ip);
-        }
-        return token.get();
+                )
+                .map(token -> {
+                    log.info(
+                            "AUTH_EVENT | action=REFRESH_TOKEN_REUSED | userId={} | tokenId={} | ip={}",
+                            user.getId(), token.getId(), ip
+                    );
+                    return token;
+                })
+                .orElseGet(() -> create(user, ip));
     }
+
 
     public String generateAccessToken(String refreshToken, String ip){
         RefreshToken token = verify(refreshToken);
@@ -95,7 +101,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 user.getUserCode(),
                 roles
         );
-        log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.getUser().getId(),token.getId(),ip);
+        log.info("AUTH_EVENT | action=ACCESS_TOKEN_REFRESHED | userId={} | tokenId={} | ip={}",token.getUser().getId(),token.getId(),ip);
 
         return newAccessToken;
     }
@@ -104,11 +110,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * Revoke refresh token
      */
     public void revoke(String refreshToken , String ip) {
-        RefreshToken token = verify(refreshToken);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
+        Long id = customUserDetails.getId();
+        RefreshToken token = refreshTokenRepository.findByToken(refreshToken).orElseThrow(() ->
+                new RefreshTokenNotFoundException("Refresh token not found"));
         token.setRevoked(true);
         refreshTokenRepository.save(token);
-        log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.getUser().getId(),token.getId(),ip);
+        log.info("AUTH_EVENT | action=REFRESH_TOKEN_REVOKED | userId={} | tokenId={} | ip={}",id,token.getId(),ip);
 
     }
-
 }

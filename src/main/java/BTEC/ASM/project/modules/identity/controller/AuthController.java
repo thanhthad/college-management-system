@@ -11,12 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "")
+
 @Tag(name = "Authentication",description = "Auth APIs")
 
 public class AuthController {
@@ -26,6 +25,7 @@ public class AuthController {
     /**
      * 🔁 REFRESH ACCESS TOKEN
      */
+    @SecurityRequirement(name = "")
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(
             @RequestBody RefreshTokenRequest request,
@@ -49,6 +49,7 @@ public class AuthController {
             @RequestBody RefreshTokenRequest request,
             HttpServletRequest httpRequest
     ) {
+
         refreshTokenService.revoke(request.getRefreshToken(),IpUtils.getClientIp(httpRequest));
 
         return ResponseData.success(null,"Logout successfully",HttpStatus.OK);
