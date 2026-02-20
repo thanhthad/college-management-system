@@ -3,8 +3,8 @@ package BTEC.ASM.project.modules.academic.service.impl;
 import BTEC.ASM.project.modules.academic.dto.request.ClassGroupRequest;
 import BTEC.ASM.project.modules.academic.dto.response.ClassGroupResponse;
 import BTEC.ASM.project.modules.academic.entity.ClassGroup;
-import BTEC.ASM.project.modules.academic.exception.ClassGroupAlreadyExistsException;
-import BTEC.ASM.project.modules.academic.exception.ClassGroupNotFoundException;
+import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.ClassGroupMapper;
 import BTEC.ASM.project.modules.academic.repository.ClassGroupRepository;
 import BTEC.ASM.project.modules.academic.service.ClassGroupService;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

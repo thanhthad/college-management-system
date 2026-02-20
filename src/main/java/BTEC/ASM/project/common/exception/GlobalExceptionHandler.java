@@ -2,10 +2,15 @@ package BTEC.ASM.project.common.exception;
 
 import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
-import BTEC.ASM.project.modules.academic.exception.*;
+import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
+import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.subject.SubjectNotFoundException;
+import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.term.TermNotFoundException;
+import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenExpiredException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNotFoundException;
-import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import jdk.jshell.spi.ExecutionControl;
 import org.springframework.http.HttpStatus;
@@ -38,7 +43,7 @@ public class GlobalExceptionHandler {
     ) {
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
-    @ExceptionHandler(ExecutionControl.UserException.class)
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleUserNotFound(
             UserNotFoundException ex
     ) {
@@ -81,7 +86,7 @@ public class GlobalExceptionHandler {
     // ===== 409 =====
     @ExceptionHandler(ClassGroupAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handleClassGroupAlreadyExists(
-            ClassGroupNotFoundException ex
+            ClassGroupAlreadyExistsException ex
     ) {
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }

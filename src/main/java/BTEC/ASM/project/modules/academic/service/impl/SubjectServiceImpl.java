@@ -3,8 +3,8 @@ package BTEC.ASM.project.modules.academic.service.impl;
 import BTEC.ASM.project.modules.academic.dto.request.SubjectRequest;
 import BTEC.ASM.project.modules.academic.dto.response.SubjectResponse;
 import BTEC.ASM.project.modules.academic.entity.Subject;
-import BTEC.ASM.project.modules.academic.exception.SubjectAlreadyExistsException;
-import BTEC.ASM.project.modules.academic.exception.SubjectNotFoundException;
+import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.subject.SubjectNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.SubjectMapper;
 import BTEC.ASM.project.modules.academic.repository.SubjectRepository;
 import BTEC.ASM.project.modules.academic.service.SubjectService;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
