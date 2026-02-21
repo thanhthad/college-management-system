@@ -10,6 +10,13 @@ import BTEC.ASM.project.modules.academic.entity.Offering;
 
 @Repository
 public interface OfferingRepository extends JpaRepository<Offering, Long> {
+
+    boolean existsByTermId(Long id);
+
+    boolean existsBySubjectId(Long id);
+
+    boolean existsByClassGroupId(Long id);
+
     boolean existsBySubjectAndTermAndClassGroup(
             Subject subject,
             Term term,

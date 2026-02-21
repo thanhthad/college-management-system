@@ -2,7 +2,6 @@ package BTEC.ASM.project.common.exception;
 
 import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
-import BTEC.ASM.project.modules.academic.exception.*;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
