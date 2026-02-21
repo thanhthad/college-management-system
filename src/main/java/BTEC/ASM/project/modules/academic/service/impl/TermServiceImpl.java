@@ -8,9 +8,12 @@ import BTEC.ASM.project.modules.academic.exception.term.TermNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.TermMapper;
 import BTEC.ASM.project.modules.academic.repository.TermRepository;
 import BTEC.ASM.project.modules.academic.service.TermService;
+import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +29,18 @@ public class TermServiceImpl implements TermService {
     private final TermRepository termRepository;
     private final TermMapper termMapper;
 
-    private String
+    private Long getIdFromAuthentication() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-    @Override
+        if (auth == null || !auth.isAuthenticated()
+                || auth.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        return userDetails.getId();
+    }
+
     public TermResponse create(TermRequest request) {
         if(termRepository.existsByTermCode(request.termCode())) {
             throw new TermAlreadyExistsException("Term already exist");
@@ -38,35 +50,12 @@ public class TermServiceImpl implements TermService {
         return termMapper.toResponse(entity);
     }
 
-    @Override
-    public List<TermResponse> getAll() {
-        return termRepository.findAll().stream()
-                .map(termMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public TermResponse getById(Long id) {
-        Term term = termRepository.findById(id).orElseThrow(
-                () -> new TermNotFoundException("Term not found")
-        );
-        return termMapper.toResponse(term);
-    }
-
-    @Override
     public TermResponse update(Long id, TermRequest request) {
         Term term = termRepository.findById(id).orElseThrow(
                 () -> new TermNotFoundException("Term not found")
         );
         termMapper.updateTermFromRequest(request,term);
         return termMapper.toResponse(termRepository.save(term));
-    }
-
-    @Override
-    public void delete(Long id) {
-        if(termRepository.existsById(id)){
-            termRepository.deleteById(id);
-        }
     }
 
     @Override
