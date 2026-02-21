@@ -28,4 +28,7 @@ public interface TermRepository extends JpaRepository<Term, Long> {
     );
 
     Page<Term> findAll(Pageable pageable);
+
+    boolean existsByTermCodeAndIdNot(String termCode, Long id);
+
 }

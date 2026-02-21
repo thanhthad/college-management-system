@@ -6,6 +6,9 @@ import BTEC.ASM.project.modules.academic.entity.Offering;
 import BTEC.ASM.project.modules.academic.entity.Subject;
 import BTEC.ASM.project.modules.academic.entity.Term;
 import BTEC.ASM.project.modules.academic.entity.ClassGroup;
+import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.mapper.OfferingMapper;
 import BTEC.ASM.project.modules.academic.repository.OfferingRepository;
 import BTEC.ASM.project.modules.academic.repository.SubjectRepository;
@@ -26,67 +29,31 @@ import java.util.stream.Collectors;
 public class OfferingServiceImpl implements OfferingService {
 
     private final OfferingRepository offeringRepository;
-    private final OfferingMapper offeringMapper;
-    private final SubjectRepository subjectRepository;
-    private final TermRepository termRepository;
-    private final ClassGroupRepository classGroupRepository;
 
     @Override
-    public Optional<OfferingResponse> create(OfferingRequest request) {
-        Optional<Subject> subjectOpt = subjectRepository.findById(request.subjectId());
-        Optional<Term> termOpt = termRepository.findById(request.termId());
-        Optional<ClassGroup> groupOpt = classGroupRepository.findById(request.classGroupId());
-
-        if (subjectOpt.isEmpty() || termOpt.isEmpty() || groupOpt.isEmpty()) return Optional.empty();
-
-        Offering entity = offeringMapper.toEntity(request);
-        entity.setSubject(subjectOpt.get());
-        entity.setTerm(termOpt.get());
-        entity.setClassGroup(groupOpt.get());
-
-        offeringRepository.save(entity);
-        return Optional.of(offeringMapper.toResponse(entity));
-    }
-
-    @Override
-    public List<OfferingResponse> getAll() {
-        return offeringRepository.findAll().stream()
-                .map(offeringMapper::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<OfferingResponse> getById(Long id) {
-        return offeringRepository.findById(id)
-                .map(offeringMapper::toResponse);
-    }
-
-    @Override
-    public Optional<OfferingResponse> update(Long id, OfferingRequest request) {
-        return offeringRepository.findById(id).flatMap(existing -> {
-            Optional<Subject> subjectOpt = subjectRepository.findById(request.subjectId());
-            Optional<Term> termOpt = termRepository.findById(request.termId());
-            Optional<ClassGroup> groupOpt = classGroupRepository.findById(request.classGroupId());
-
-            if(subjectOpt.isEmpty() || termOpt.isEmpty() || groupOpt.isEmpty()) return Optional.empty();
-
-            offeringMapper.updateOfferingFromRequest(request, existing);
-
-            existing.setSubject(subjectOpt.get());
-            existing.setTerm(termOpt.get());
-            existing.setClassGroup(groupOpt.get());
-
-            offeringRepository.save(existing);
-            return Optional.of(offeringMapper.toResponse(existing));
-        });
-    }
-
-    @Override
-    public boolean delete(Long id) {
-        if(offeringRepository.existsById(id)){
-            offeringRepository.deleteById(id);
-            return true;
+    public void validateTermNotInUse(Long termId) {
+        if (offeringRepository.existsByTermId(termId)) {
+            throw new TermAlreadyExistsException(
+                    "Term is already used in offerings"
+            );
         }
-        return false;
+    }
+
+    @Override
+    public void validateSubjectNotInUse(Long subjectId) {
+        if (offeringRepository.existsBySubjectId(subjectId)) {
+            throw new SubjectAlreadyExistsException(
+                    "Subject is already used in offerings"
+            );
+        }
+    }
+
+    @Override
+    public void validateClassGroupNotInUse(Long classGroupId) {
+        if (offeringRepository.existsByClassGroupId(classGroupId)) {
+            throw new ClassGroupAlreadyExistsException(
+                    "Class group is already used in offerings"
+            );
+        }
     }
 }

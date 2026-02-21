@@ -7,9 +7,12 @@ import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsExcepti
 import BTEC.ASM.project.modules.academic.exception.term.TermNotFoundException;
 import BTEC.ASM.project.modules.academic.mapper.TermMapper;
 import BTEC.ASM.project.modules.academic.repository.TermRepository;
+import BTEC.ASM.project.modules.academic.service.OfferingService;
 import BTEC.ASM.project.modules.academic.service.TermService;
 import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -20,16 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Log4j2
 public class TermServiceImpl implements TermService {
 
     private final TermRepository termRepository;
     private final TermMapper termMapper;
+    private final OfferingService offeringService;
 
-    private Long getIdFromAuthentication() {
+    private Long getUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated()
@@ -37,59 +41,161 @@ public class TermServiceImpl implements TermService {
             return null;
         }
 
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        return userDetails.getId();
+        return ((CustomUserDetails) auth.getPrincipal()).getId();
     }
 
-    public TermResponse create(TermRequest request) {
-        if(termRepository.existsByTermCode(request.termCode())) {
-            throw new TermAlreadyExistsException("Term already exist");
+    // ===== CREATE =====
+    @Override
+    public TermResponse create(TermRequest request, String ip) {
+        try {
+            Term saved = termRepository.save(termMapper.toEntity(request));
+
+            log.info(
+                    "AUTH_EVENT | action=TERM_CREATED | userId={} | termCode={} | ip={}",
+                    getUserId(),
+                    saved.getTermCode(),
+                    ip
+            );
+
+            return termMapper.toResponse(saved);
+
+        } catch (DataIntegrityViolationException ex) {
+            throw new TermAlreadyExistsException("Term already exists");
         }
-        Term entity = termMapper.toEntity(request);
-        termRepository.save(entity);
-        return termMapper.toResponse(entity);
     }
 
-    public TermResponse update(Long id, TermRequest request) {
-        Term term = termRepository.findById(id).orElseThrow(
-                () -> new TermNotFoundException("Term not found")
+    // ===== FIND BY CODE =====
+    @Override
+    public TermResponse findByTermCode(String termCode, String ip) {
+        Term term = termRepository.findByTermCode(termCode)
+                .orElseThrow(() -> new TermNotFoundException("Term not found"));
+
+        log.info(
+                "AUTH_EVENT | action=TERM_FETCHED | userId={} | termCode={} | ip={}",
+                getUserId(),
+                termCode,
+                ip
         );
-        termMapper.updateTermFromRequest(request,term);
-        return termMapper.toResponse(termRepository.save(term));
+
+        return termMapper.toResponse(term);
     }
 
+    // ===== VALIDATE EXISTS =====
     @Override
-    public TermResponse findByTermCode(String termCode) {
-        return null;
+    public void validateTermExists(String termCode, String ip) {
+        if (!termRepository.existsByTermCode(termCode)) {
+            throw new TermNotFoundException("Term not found");
+        }
+//
+//        log.info(
+//                "AUTH_EVENT | action=TERM_VALIDATED | userId={} | termCode={} | ip={}",
+//                getUserId(),
+//                termCode,
+//                ip
+//        );
     }
 
+    // ===== FILTER BY START DATE =====
     @Override
-    public void existsByTermCode(String termCode) {
+    public Page<TermResponse> findByStartDateAfter(
+            LocalDate date,
+            Pageable pageable,
+            String ip
+    ) {
+        Page<Term> records =
+                termRepository.findByStartDateAfter(date, pageable);
 
+        log.info(
+                "AUTH_EVENT | action=TERM_LIST_START_AFTER | userId={} | date={} | ip={}",
+                getUserId(),
+                date,
+                ip
+        );
+
+        return records.map(termMapper::toResponse);
     }
 
+    // ===== CURRENT TERMS =====
     @Override
-    public Page<TermResponse> findByStartDateAfter(LocalDate date, Pageable pageable) {
-        return null;
+    public Page<TermResponse> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            LocalDate now1,
+            LocalDate now2,
+            Pageable pageable,
+            String ip
+    ) {
+        Page<Term> records =
+                termRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        now1, now2, pageable
+                );
+
+        log.info(
+                "AUTH_EVENT | action=TERM_LIST_ACTIVE | userId={} | ip={}",
+                getUserId(),
+                ip
+        );
+
+        return records.map(termMapper::toResponse);
     }
 
+    // ===== FIND ALL =====
     @Override
-    public Page<TermResponse> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate now1, LocalDate now2, Pageable pageable) {
-        return null;
+    public Page<TermResponse> findAll(Pageable pageable, String ip) {
+        Page<Term> records = termRepository.findAll(pageable);
+
+        log.info(
+                "AUTH_EVENT | action=TERM_LIST_ALL | userId={} | page={} | size={} | ip={}",
+                getUserId(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                ip
+        );
+
+        return records.map(termMapper::toResponse);
     }
 
+    // ===== UPDATE =====
     @Override
-    public Page<TermResponse> findAll(Pageable pageable) {
-        return null;
+    public TermResponse updateByTermCode(
+            String termCode,
+            TermRequest request,
+            String ip
+    ) {
+        Term term = termRepository.findByTermCode(termCode)
+                .orElseThrow(() -> new TermNotFoundException("Term not found"));
+
+        if (request.termCode() != null &&
+                termRepository.existsByTermCodeAndIdNot(
+                        request.termCode(), term.getId())) {
+            throw new TermAlreadyExistsException("Term already exists");
+        }
+
+        termMapper.updateTermFromRequest(request, term);
+        termRepository.save(term);
+
+        log.info(
+                "AUTH_EVENT | action=TERM_UPDATED | userId={} | termCode={} | ip={}",
+                getUserId(),
+                term.getTermCode(),
+                ip
+        );
+
+        return termMapper.toResponse(term);
     }
 
+    // ===== DELETE =====
     @Override
-    public TermResponse updateByTermCode(String termCode, TermRequest request) {
-        return null;
-    }
+    public void deleteByTermCode(String termCode, String ip) {
+        Term term = termRepository.findByTermCode(termCode)
+                .orElseThrow(() -> new TermNotFoundException("Term not found"));
 
-    @Override
-    public void deleteByTermCode(String termCode) {
+        offeringService.validateTermNotInUse(term.getId());
+        termRepository.delete(term);
 
+        log.info(
+                "AUTH_EVENT | action=TERM_DELETED | userId={} | termCode={} | ip={}",
+                getUserId(),
+                termCode,
+                ip
+        );
     }
 }

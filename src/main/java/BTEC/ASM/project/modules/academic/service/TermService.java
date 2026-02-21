@@ -11,22 +11,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TermService {
+    TermResponse create(TermRequest request,String ip);
 
-    TermResponse findByTermCode(String termCode);
+    TermResponse findByTermCode(String termCode,String ip);
 
-    void existsByTermCode(String termCode);
+    void validateTermExists(String termCode,String ip);
 
-    Page<TermResponse> findByStartDateAfter(LocalDate date, Pageable pageable);
+    Page<TermResponse> findByStartDateAfter(LocalDate date, Pageable pageable,String ip);
 
     Page<TermResponse> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
             LocalDate now1,
             LocalDate now2,
-            Pageable pageable
+            Pageable pageable,String ip
     );
 
-    Page<TermResponse> findAll(Pageable pageable);
+    Page<TermResponse> findAll(Pageable pageable,String ip);
 
-    TermResponse updateByTermCode(String termCode, TermRequest request);
+    TermResponse updateByTermCode(String termCode, TermRequest request,String ip);
 
-    void deleteByTermCode(String termCode);
+    void deleteByTermCode(String termCode,String ip);
 }
