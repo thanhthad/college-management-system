@@ -75,8 +75,8 @@ public class TermController {
                         IpUtils.getClientIp(httpServletRequest)
                 );
 
-        return ResponseData.success(
-                PaginationResponse.fromPage(pages),
+        return ResponseData.successPaginate(
+                pages,
                 "Find successfully",
                 HttpStatus.OK
         );
@@ -102,8 +102,8 @@ public class TermController {
                         IpUtils.getClientIp(httpServletRequest)
                 );
 
-        return ResponseData.success(
-                PaginationResponse.fromPage(pages),
+        return ResponseData.successPaginate(
+                pages,
                 "Find successfully",
                 HttpStatus.OK
         );
@@ -118,8 +118,8 @@ public class TermController {
         Page<TermResponse> pages =
                 termService.findAll(pageable, IpUtils.getClientIp(httpServletRequest));
 
-        return ResponseData.success(
-                PaginationResponse.fromPage(pages),
+        return ResponseData.successPaginate(
+                pages,
                 "Find successfully",
                 HttpStatus.OK
         );
