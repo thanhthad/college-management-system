@@ -38,7 +38,6 @@ public class GlobalExceptionHandler {
         return userDetails.getId();
     }
 
-
     // ===== VALIDATION =====
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidation(
@@ -59,6 +58,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleTermNotFound(
             TermNotFoundException ex
     ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "AUTH_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_NOT_FOUND",
+                userId
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(ExecutionControl.UserException.class)
@@ -137,6 +142,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleTermAlreadyExists(
             TermAlreadyExistsException ex
     ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "AUTH_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_EXISTS",
+                userId
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }
     @ExceptionHandler(SubjectAlreadyExistsException.class)
