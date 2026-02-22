@@ -11,18 +11,18 @@ import java.util.Optional;
 
 public interface SubjectService {
 
-    SubjectResponse create(SubjectRequest request);
+    SubjectResponse create(SubjectRequest request,String ip);
 
-    Page<SubjectResponse> findAll(Pageable pageable);
+    Page<SubjectResponse> findAll(Pageable pageable,String ip);
 
-    SubjectResponse findBySubjectCode(String subjectCode);
+    SubjectResponse findBySubjectCode(String subjectCode,String ip);
 
     Page<Subject> findBySubjectNameContainingIgnoreCase(
             String subjectName,
-            Pageable pageable
+            Pageable pageable,String ip
     );
 
-    SubjectResponse updateBySubjectCode(Long id, SubjectRequest request);
+    SubjectResponse updateBySubjectCode(Long id, SubjectRequest request,String ip);
 
-    void deleteBySubjectCode(Long id);
+    void deleteBySubjectCode(Long id,String ip);
 }
