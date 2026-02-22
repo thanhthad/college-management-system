@@ -2,6 +2,9 @@ package BTEC.ASM.project.modules.academic.service;
 
 import BTEC.ASM.project.modules.academic.dto.request.SubjectRequest;
 import BTEC.ASM.project.modules.academic.dto.response.SubjectResponse;
+import BTEC.ASM.project.modules.academic.entity.Subject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,11 +13,16 @@ public interface SubjectService {
 
     SubjectResponse create(SubjectRequest request);
 
-    List<SubjectResponse> getAll();
+    Page<SubjectResponse> findAll(Pageable pageable);
 
-    SubjectResponse getById(Long id);
+    SubjectResponse findBySubjectCode(String subjectCode);
 
-    SubjectResponse update(Long id, SubjectRequest request);
+    Page<Subject> findBySubjectNameContainingIgnoreCase(
+            String subjectName,
+            Pageable pageable
+    );
 
-    void delete(Long id);
+    SubjectResponse updateBySubjectCode(Long id, SubjectRequest request);
+
+    void deleteBySubjectCode(Long id);
 }
