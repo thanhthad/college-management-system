@@ -17,12 +17,12 @@ public interface SubjectService {
 
     SubjectResponse findBySubjectCode(String subjectCode,String ip);
 
-    Page<Subject> findBySubjectNameContainingIgnoreCase(
+    Page<SubjectResponse> findBySubjectNameContainingIgnoreCase(
             String subjectName,
             Pageable pageable,String ip
     );
 
-    SubjectResponse updateBySubjectCode(Long id, SubjectRequest request,String ip);
+    SubjectResponse updateBySubjectCode(String subjectCode, SubjectRequest request,String ip);
 
-    void deleteBySubjectCode(Long id,String ip);
+    void deleteBySubjectCode(String subjectCode,String ip);
 }
