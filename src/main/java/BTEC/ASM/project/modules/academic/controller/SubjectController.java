@@ -49,7 +49,7 @@ public class SubjectController {
         );
     }
 
-    @GetMapping("{subjectCode}")
+    @GetMapping("/code/{subjectCode}")
     public ResponseEntity<?> findBySubjectCode(
             @PathVariable String subjectCode,
             HttpServletRequest httpServletRequest
@@ -63,9 +63,9 @@ public class SubjectController {
                 HttpStatus.OK
         );
     }
-    @GetMapping("{subjectName}")
+    @GetMapping("/search")
     public ResponseEntity<?> findBySubjectNameContainingIgnoreCase(
-            @PathVariable String subjectName,
+            @RequestParam String subjectName,
             Pageable pageable,
             HttpServletRequest httpServletRequest
     ){

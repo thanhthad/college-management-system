@@ -123,7 +123,7 @@ public class SubjectServiceImpl implements SubjectService {
                 .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
 
         if (!request.subjectCode().equals(subject.getSubjectCode())
-                && subjectRepository.existsBySubjectCodeAndSubjectIdNot(
+                && subjectRepository.existsBySubjectCodeAndIdNot(
                 request.subjectCode(),
                 subject.getId()
         )) {
