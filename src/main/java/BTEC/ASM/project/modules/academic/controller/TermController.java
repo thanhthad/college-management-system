@@ -1,6 +1,5 @@
 package BTEC.ASM.project.modules.academic.controller;
 
-import BTEC.ASM.project.common.response.PaginationResponse;
 import BTEC.ASM.project.common.response.ResponseData;
 import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.academic.dto.request.TermRequest;
