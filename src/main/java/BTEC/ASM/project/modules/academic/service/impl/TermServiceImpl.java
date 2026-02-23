@@ -51,7 +51,7 @@ public class TermServiceImpl implements TermService {
             Term saved = termRepository.save(termMapper.toEntity(request));
 
             log.info(
-                    "AUTH_EVENT | action=TERM_CREATED | userId={} | termCode={} | ip={}",
+                    "TERM_EVENT | action=TERM_CREATED | userId={} | termCode={} | ip={}",
                     getUserId(),
                     saved.getTermCode(),
                     ip
@@ -71,7 +71,7 @@ public class TermServiceImpl implements TermService {
                 .orElseThrow(() -> new TermNotFoundException("Term not found"));
 
         log.info(
-                "AUTH_EVENT | action=TERM_FETCHED | userId={} | termCode={} | ip={}",
+                "TERM_EVENT | action=TERM_FETCHED | userId={} | termCode={} | ip={}",
                 getUserId(),
                 termCode,
                 ip
@@ -106,7 +106,7 @@ public class TermServiceImpl implements TermService {
                 termRepository.findByStartDateAfter(date, pageable);
 
         log.info(
-                "AUTH_EVENT | action=TERM_LIST_START_AFTER | userId={} | date={} | ip={}",
+                "TERM_EVENT | action=TERM_LIST_START_AFTER | userId={} | date={} | ip={}",
                 getUserId(),
                 date,
                 ip
@@ -129,7 +129,7 @@ public class TermServiceImpl implements TermService {
                 );
 
         log.info(
-                "AUTH_EVENT | action=TERM_LIST_ACTIVE | userId={} | ip={}",
+                "TERM_EVENT | action=TERM_LIST_ACTIVE | userId={} | ip={}",
                 getUserId(),
                 ip
         );
@@ -143,7 +143,7 @@ public class TermServiceImpl implements TermService {
         Page<Term> records = termRepository.findAll(pageable);
 
         log.info(
-                "AUTH_EVENT | action=TERM_LIST_ALL | userId={} | page={} | size={} | ip={}",
+                "TERM_EVENT | action=TERM_LIST_ALL | userId={} | page={} | size={} | ip={}",
                 getUserId(),
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
@@ -173,7 +173,7 @@ public class TermServiceImpl implements TermService {
         termRepository.save(term);
 
         log.info(
-                "AUTH_EVENT | action=TERM_UPDATED | userId={} | termCode={} | ip={}",
+                "TERM_EVENT | action=TERM_UPDATED | userId={} | termCode={} | ip={}",
                 getUserId(),
                 term.getTermCode(),
                 ip
@@ -192,7 +192,7 @@ public class TermServiceImpl implements TermService {
         termRepository.delete(term);
 
         log.info(
-                "AUTH_EVENT | action=TERM_DELETED | userId={} | termCode={} | ip={}",
+                "TERM_EVENT | action=TERM_DELETED | userId={} | termCode={} | ip={}",
                 getUserId(),
                 termCode,
                 ip
