@@ -61,27 +61,39 @@ public class GlobalExceptionHandler {
         Long userId = getIdFromAuthentication();
 
         log.warn(
-                "AUTH_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_NOT_FOUND",
+                "TERM_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_NOT_FOUND",
                 userId
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
-    @ExceptionHandler(ExecutionControl.UserException.class)
+
+    @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleUserNotFound(
             UserNotFoundException ex
     ) {
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(ClassGroupNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleClassGroupNotFound(
             ClassGroupNotFoundException ex
     ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "CLASSGROUP_EVENT | action=CLASSGROUP | userId={} | status=FAIL | reason=CLASSGROUP_NOT_FOUND",
+                userId
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(SubjectNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleSubjectNotFound(
             SubjectNotFoundException ex
     ) {
+        log.warn(
+                "SUBJECT_EVENT | action=SUBJECT | userId={} | status=FAIL | reason=SUBJECT_NOT_FOUND",
+                getIdFromAuthentication()
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
@@ -134,8 +146,14 @@ public class GlobalExceptionHandler {
     // ===== 409 =====
     @ExceptionHandler(ClassGroupAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handleClassGroupAlreadyExists(
-            ClassGroupNotFoundException ex
+            ClassGroupAlreadyExistsException ex
     ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "CLASSGROUP_EVENT | action=CLASSGROUP | userId={} | status=FAIL | reason=CLASSGROUP_EXISTS",
+                userId
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }
     @ExceptionHandler(TermAlreadyExistsException.class)
@@ -145,7 +163,7 @@ public class GlobalExceptionHandler {
         Long userId = getIdFromAuthentication();
 
         log.warn(
-                "AUTH_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_EXISTS",
+                "TERM_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_EXISTS",
                 userId
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
@@ -154,6 +172,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleSubjectAlreadyExists(
             SubjectAlreadyExistsException ex
     ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "SUBJECT_EVENT | action=SUBJECT | userId={} | status=FAIL | reason=SUBJECT_EXISTS",
+                userId
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
@@ -162,6 +186,23 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleBadRequest(
             IllegalArgumentException ex
     ) {
+        log.warn(
+                "VALIDATION_FAIL | userId={} | message={}",
+                getIdFromAuthentication(),
+                ex
+        );
+        return ResponseData.fail(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleIllegalState(
+            IllegalStateException ex
+    ) {
+        log.warn(
+                "VALIDATION_FAIL | userId={} | message={}",
+                getIdFromAuthentication(),
+                ex
+        );
         return ResponseData.fail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -170,6 +211,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleRuntime(
             RuntimeException ex
     ) {
+        log.warn(
+                "INTERNAL_SERVER_ERROR | userId={} | message={}",
+                getIdFromAuthentication(),
+                ex
+        );
         return ResponseData.fail("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
