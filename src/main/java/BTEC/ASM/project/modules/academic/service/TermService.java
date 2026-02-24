@@ -13,19 +13,17 @@ import java.util.Optional;
 public interface TermService {
     TermResponse create(TermRequest request,String ip);
 
-    TermResponse findByTermCode(String termCode,String ip);
+    TermResponse getByTermCode(String termCode,String ip);
 
-    void validateTermExists(String termCode,String ip);
+    Page<TermResponse> getByStartDate(LocalDate date, Pageable pageable,String ip);
 
-    Page<TermResponse> findByStartDateAfter(LocalDate date, Pageable pageable,String ip);
-
-    Page<TermResponse> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+    Page<TermResponse> getByStartDateAndEndDate(
             LocalDate now1,
             LocalDate now2,
             Pageable pageable,String ip
     );
 
-    Page<TermResponse> findAll(Pageable pageable,String ip);
+    Page<TermResponse> getAll(Pageable pageable,String ip);
 
     TermResponse updateByTermCode(String termCode, TermRequest request,String ip);
 

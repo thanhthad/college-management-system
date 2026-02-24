@@ -66,7 +66,7 @@ public class TermServiceImpl implements TermService {
 
     // ===== FIND BY CODE =====
     @Override
-    public TermResponse findByTermCode(String termCode, String ip) {
+    public TermResponse getByTermCode(String termCode, String ip) {
         Term term = termRepository.findByTermCode(termCode)
                 .orElseThrow(() -> new TermNotFoundException("Term not found"));
 
@@ -80,24 +80,10 @@ public class TermServiceImpl implements TermService {
         return termMapper.toResponse(term);
     }
 
-    // ===== VALIDATE EXISTS =====
-    @Override
-    public void validateTermExists(String termCode, String ip) {
-        if (!termRepository.existsByTermCode(termCode)) {
-            throw new TermNotFoundException("Term not found");
-        }
-//
-//        log.info(
-//                "AUTH_EVENT | action=TERM_VALIDATED | userId={} | termCode={} | ip={}",
-//                getUserId(),
-//                termCode,
-//                ip
-//        );
-    }
 
     // ===== FILTER BY START DATE =====
     @Override
-    public Page<TermResponse> findByStartDateAfter(
+    public Page<TermResponse> getByStartDate(
             LocalDate date,
             Pageable pageable,
             String ip
@@ -117,7 +103,7 @@ public class TermServiceImpl implements TermService {
 
     // ===== CURRENT TERMS =====
     @Override
-    public Page<TermResponse> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+    public Page<TermResponse> getByStartDateAndEndDate(
             LocalDate now1,
             LocalDate now2,
             Pageable pageable,
@@ -129,8 +115,10 @@ public class TermServiceImpl implements TermService {
                 );
 
         log.info(
-                "TERM_EVENT | action=TERM_LIST_ACTIVE | userId={} | ip={}",
+                "TERM_EVENT | action=TERM_LIST_ACTIVE | userId={} | startDate={} | endDate={} | ip={}",
                 getUserId(),
+                now1,
+                now2,
                 ip
         );
 
@@ -139,7 +127,7 @@ public class TermServiceImpl implements TermService {
 
     // ===== FIND ALL =====
     @Override
-    public Page<TermResponse> findAll(Pageable pageable, String ip) {
+    public Page<TermResponse> getAll(Pageable pageable, String ip) {
         Page<Term> records = termRepository.findAll(pageable);
 
         log.info(
