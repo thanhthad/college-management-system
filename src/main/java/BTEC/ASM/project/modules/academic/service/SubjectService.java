@@ -13,11 +13,11 @@ public interface SubjectService {
 
     SubjectResponse create(SubjectRequest request,String ip);
 
-    Page<SubjectResponse> findAll(Pageable pageable,String ip);
+    Page<SubjectResponse> getAll(Pageable pageable,String ip);
 
-    SubjectResponse findBySubjectCode(String subjectCode,String ip);
+    SubjectResponse getBySubjectCode(String subjectCode,String ip);
 
-    Page<SubjectResponse> findBySubjectNameContainingIgnoreCase(
+    Page<SubjectResponse> getBySubjectName(
             String subjectName,
             Pageable pageable,String ip
     );

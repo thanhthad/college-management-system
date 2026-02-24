@@ -64,7 +64,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<SubjectResponse> findAll(Pageable pageable, String ip) {
+    public Page<SubjectResponse> getAll(Pageable pageable, String ip) {
         Page<Subject> results = subjectRepository.findAll(pageable);
 
         log.info(
@@ -80,7 +80,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Transactional(readOnly = true)
     @Override
-    public SubjectResponse findBySubjectCode(String subjectCode, String ip) {
+    public SubjectResponse getBySubjectCode(String subjectCode, String ip) {
         Subject subject = subjectRepository.findBySubjectCode(subjectCode)
                 .orElseThrow(() -> new SubjectNotFoundException("Subject not found"));
 
@@ -96,7 +96,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<SubjectResponse> findBySubjectNameContainingIgnoreCase(
+    public Page<SubjectResponse> getBySubjectName(
             String subjectName,
             Pageable pageable,
             String ip
