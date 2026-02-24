@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class SubjectServiceImpl implements SubjectService {
 
     private final SubjectRepository subjectRepository;
@@ -43,6 +42,7 @@ public class SubjectServiceImpl implements SubjectService {
         return ((CustomUserDetails) auth.getPrincipal()).getId();
     }
 
+    @Transactional
     @Override
     public SubjectResponse create(SubjectRequest request, String ip) {
         if (subjectRepository.existsBySubjectCode(request.subjectCode())) {
@@ -62,6 +62,7 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<SubjectResponse> findAll(Pageable pageable, String ip) {
         Page<Subject> results = subjectRepository.findAll(pageable);
@@ -77,6 +78,7 @@ public class SubjectServiceImpl implements SubjectService {
         return results.map(subjectMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public SubjectResponse findBySubjectCode(String subjectCode, String ip) {
         Subject subject = subjectRepository.findBySubjectCode(subjectCode)
@@ -92,6 +94,7 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectMapper.toResponse(subject);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<SubjectResponse> findBySubjectNameContainingIgnoreCase(
             String subjectName,
@@ -113,6 +116,7 @@ public class SubjectServiceImpl implements SubjectService {
         return results.map(subjectMapper::toResponse);
     }
 
+    @Transactional
     @Override
     public SubjectResponse updateBySubjectCode(
             String subjectCode,
@@ -143,6 +147,7 @@ public class SubjectServiceImpl implements SubjectService {
         return subjectMapper.toResponse(saved);
     }
 
+    @Transactional
     @Override
     public void deleteBySubjectCode(String subjectCode,String ip) {
         Subject subject = subjectRepository.findBySubjectCode(subjectCode)
