@@ -11,9 +11,9 @@ public interface ClassGroupService {
      * CRUD
      * ========================= */
 
-    ClassGroupResponse create(ClassGroupRequest request);
+    ClassGroupResponse create(ClassGroupRequest request,String ip);
 
-    Page<ClassGroupResponse> getAll(Pageable pageable);
+    Page<ClassGroupResponse> getAll(Pageable pageable,String ip);
 
     ClassGroupResponse getByGroupName(String groupName, String ip);
 
@@ -31,34 +31,40 @@ public interface ClassGroupService {
 
     Page<ClassGroupResponse> searchByGroupName(
             String keyword,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 
     Page<ClassGroupResponse> searchByCampus(
             String campusCode,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 
     Page<ClassGroupResponse> searchByDepartment(
             String departmentCode,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 
     Page<ClassGroupResponse> searchByCampusAndDepartment(
             String campusCode,
             String departmentCode,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 
     Page<ClassGroupResponse> searchByGroupNameAndCampus(
             String keyword,
             String campusCode,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 
     Page<ClassGroupResponse> searchByGroupNameAndDepartment(
             String keyword,
             String departmentCode,
-            Pageable pageable
+            Pageable pageable,
+            String ip
     );
 }
