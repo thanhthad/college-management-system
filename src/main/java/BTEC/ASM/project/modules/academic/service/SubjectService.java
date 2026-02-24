@@ -2,19 +2,27 @@ package BTEC.ASM.project.modules.academic.service;
 
 import BTEC.ASM.project.modules.academic.dto.request.SubjectRequest;
 import BTEC.ASM.project.modules.academic.dto.response.SubjectResponse;
+import BTEC.ASM.project.modules.academic.entity.Subject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface SubjectService {
 
-    SubjectResponse create(SubjectRequest request);
+    SubjectResponse create(SubjectRequest request,String ip);
 
-    List<SubjectResponse> getAll();
+    Page<SubjectResponse> findAll(Pageable pageable,String ip);
 
-    SubjectResponse getById(Long id);
+    SubjectResponse findBySubjectCode(String subjectCode,String ip);
 
-    SubjectResponse update(Long id, SubjectRequest request);
+    Page<SubjectResponse> findBySubjectNameContainingIgnoreCase(
+            String subjectName,
+            Pageable pageable,String ip
+    );
 
-    void delete(Long id);
+    SubjectResponse updateBySubjectCode(String subjectCode, SubjectRequest request,String ip);
+
+    void deleteBySubjectCode(String subjectCode,String ip);
 }
