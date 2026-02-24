@@ -8,6 +8,7 @@ import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFound
 import BTEC.ASM.project.modules.academic.mapper.ClassGroupMapper;
 import BTEC.ASM.project.modules.academic.repository.ClassGroupRepository;
 import BTEC.ASM.project.modules.academic.service.ClassGroupService;
+import BTEC.ASM.project.modules.academic.service.OfferingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ public class ClassGroupServiceImpl implements ClassGroupService {
 
     private final ClassGroupRepository classGroupRepository;
     private final ClassGroupMapper classGroupMapper;
+    private final OfferingService offeringService;
 
     @Override
     public ClassGroupResponse create(ClassGroupRequest request) {
