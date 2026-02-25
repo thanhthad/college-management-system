@@ -52,7 +52,7 @@ public class ClassGroupServiceImpl implements ClassGroupService {
         classGroupRepository.save(classGroup);
 
         log.info(
-                "CLASSGROUP_EVENT | action=CLASSGROUP_CREATED | userId={} | subjectCode={} | ip={}",
+                "CLASSGROUP_EVENT | action=CLASSGROUP_CREATED | userId={} | groupName={} | ip={}",
                 getUserId(),
                 classGroup.getGroupName(),
                 ip
@@ -80,6 +80,12 @@ public class ClassGroupServiceImpl implements ClassGroupService {
         ClassGroup classGroup = classGroupRepository.findByGroupName(groupName).orElseThrow(
                 () -> new ClassGroupNotFoundException("ClassGroup not found")
         );
+        log.info(
+                "CLASSGROUP_EVENT | action=CLASSGROUP_NAME | userId={} | groupName={} | ip={}",
+                getUserId(),
+                classGroup.getGroupName(),
+                ip
+        );
         return classGroupMapper.toResponse(classGroup);
     }
 
@@ -94,17 +100,30 @@ public class ClassGroupServiceImpl implements ClassGroupService {
         }
         classGroupMapper.updateClassGroupFromRequest(request,classGroup);
         classGroupRepository.save(classGroup);
+
+        log.info(
+                "CLASSGROUP_EVENT | action=CLASSGROUP_UPDATE | userId={} | groupName={} | ip={}",
+                getUserId(),
+                request.groupName(),
+                ip
+        );
         return classGroupMapper.toResponse(classGroup);
     }
 
     @Transactional
     @Override
-    public void deleteByGroupName(String groupName) {
+    public void deleteByGroupName(String groupName,String ip) {
         ClassGroup classGroup = classGroupRepository.findByGroupName(groupName).orElseThrow(
                 () -> new ClassGroupNotFoundException("ClassGroup not found")
         );
         offeringService.validateClassGroupNotInUse(classGroup.getId());
         classGroupRepository.delete(classGroup);
+        log.info(
+                "CLASSGROUP_EVENT | action=CLASSGROUP_DELETE | userId={} | groupName={} | ip={}",
+                getUserId(),
+                classGroup.getGroupName(),
+                ip
+        );
     }
 
     @Transactional(readOnly = true)

@@ -23,7 +23,7 @@ public interface ClassGroupService {
             String ip
     );
 
-    void deleteByGroupName(String groupName);
+    void deleteByGroupName(String groupName,String ip);
 
     /* =========================
      * SEARCH / FILTER
