@@ -1,12 +1,9 @@
 package BTEC.ASM.project.modules.academic.controller;
 
-
 import BTEC.ASM.project.common.response.ResponseData;
 import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.academic.dto.request.SubjectRequest;
-import BTEC.ASM.project.modules.academic.dto.request.TermRequest;
 import BTEC.ASM.project.modules.academic.dto.response.SubjectResponse;
-import BTEC.ASM.project.modules.academic.dto.response.TermResponse;
 import BTEC.ASM.project.modules.academic.service.SubjectService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,11 +32,11 @@ public class SubjectController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> findAll(
+    public ResponseEntity<?> getAll(
             Pageable pageable,
             HttpServletRequest httpServletRequest
     ){
-        Page<SubjectResponse> subjectResponsePage = subjectService.findAll(
+        Page<SubjectResponse> subjectResponsePage = subjectService.getAll(
                 pageable,
                 IpUtils.getClientIp(httpServletRequest)
         );
@@ -50,11 +47,11 @@ public class SubjectController {
     }
 
     @GetMapping("/code/{subjectCode}")
-    public ResponseEntity<?> findBySubjectCode(
+    public ResponseEntity<?> getBySubjectCode(
             @PathVariable String subjectCode,
             HttpServletRequest httpServletRequest
     ){
-        SubjectResponse subjectResponse = subjectService.findBySubjectCode(
+        SubjectResponse subjectResponse = subjectService.getBySubjectCode(
                 subjectCode,
                 IpUtils.getClientIp(httpServletRequest)
         );
@@ -64,12 +61,12 @@ public class SubjectController {
         );
     }
     @GetMapping("/search")
-    public ResponseEntity<?> findBySubjectNameContainingIgnoreCase(
+    public ResponseEntity<?> getBySubjectName(
             @RequestParam String subjectName,
             Pageable pageable,
             HttpServletRequest httpServletRequest
     ){
-        Page<SubjectResponse> subjectResponse = subjectService.findBySubjectNameContainingIgnoreCase(
+        Page<SubjectResponse> subjectResponse = subjectService.getBySubjectName(
                 subjectName,
                 pageable,
                 IpUtils.getClientIp(httpServletRequest)
