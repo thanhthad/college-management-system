@@ -44,12 +44,12 @@ public class TermController {
 
     // GET BY CODE
     @GetMapping("/{termCode}")
-    public ResponseEntity<?> findByTermCode(
+    public ResponseEntity<?> getByTermCode(
             @PathVariable String termCode,
             HttpServletRequest httpServletRequest
     ) {
         TermResponse termResponse =
-                termService.findByTermCode(termCode, IpUtils.getClientIp(httpServletRequest));
+                termService.getByTermCode(termCode, IpUtils.getClientIp(httpServletRequest));
 
         return ResponseData.success(
                 termResponse,
@@ -60,7 +60,7 @@ public class TermController {
 
     // FIND BY START DATE AFTER
     @GetMapping("/search/start-date-after")
-    public ResponseEntity<?> findByStartDateAfter(
+    public ResponseEntity<?> getByStartDate(
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date,
@@ -68,7 +68,7 @@ public class TermController {
             HttpServletRequest httpServletRequest
     ) {
         Page<TermResponse> pages =
-                termService.findByStartDateAfter(
+                termService.getByStartDate(
                         date,
                         pageable,
                         IpUtils.getClientIp(httpServletRequest)
@@ -83,7 +83,7 @@ public class TermController {
 
     // FIND ACTIVE TERMS
     @GetMapping("/search/active")
-    public ResponseEntity<?> findActiveTerms(
+    public ResponseEntity<?> getActiveTerms(
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate from,
@@ -94,7 +94,7 @@ public class TermController {
             HttpServletRequest httpServletRequest
     ) {
         Page<TermResponse> pages =
-                termService.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                termService.getByStartDateAndEndDate(
                         from,
                         to,
                         pageable,
@@ -110,12 +110,12 @@ public class TermController {
 
     // FIND ALL
     @GetMapping
-    public ResponseEntity<?> findAll(
+    public ResponseEntity<?> getAll(
             Pageable pageable,
             HttpServletRequest httpServletRequest
     ) {
         Page<TermResponse> pages =
-                termService.findAll(pageable, IpUtils.getClientIp(httpServletRequest));
+                termService.getAll(pageable, IpUtils.getClientIp(httpServletRequest));
 
         return ResponseData.successPaginate(
                 pages,
