@@ -13,7 +13,6 @@ import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNo
 import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
-import jdk.jshell.spi.ExecutionControl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
