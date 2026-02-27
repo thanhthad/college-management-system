@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.academic.dto.request;
 
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
@@ -23,6 +24,6 @@ public record OfferingRequest(
         @NotNull(message = "End date is required")
         LocalDate endDate,
 
-        @Size(max = 50, message = "Status must not exceed 50 characters")
-        String status
+        @NotNull(message = "Status is required")
+        OfferingStatus status
 ) {}

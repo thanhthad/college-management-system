@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.academic.entity;
 
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,6 +46,7 @@ public class Offering {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private String status;
+    private OfferingStatus status;
 }
