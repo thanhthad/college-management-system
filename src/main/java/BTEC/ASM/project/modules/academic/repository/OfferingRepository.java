@@ -15,6 +15,12 @@ import java.util.Optional;
 @Repository
 public interface OfferingRepository extends JpaRepository<Offering, Long> {
 
+    boolean existsByTermId(Long id);
+
+    boolean existsBySubjectId(Long id);
+
+    boolean existsByClassGroupId(Long id);
+
     // =========================================================
     // 1. UNIQUE VALIDATION (Subject + Term + ClassGroup)
     // =========================================================
@@ -110,7 +116,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long> {
     );
 
     // =========================================================
-    // 5. PAGINATION – FILTER THEO 3 ĐIỀU KIỆN (USE CASE RÕ RÀNG)
+    // 5. PAGINATION – FILTER THEO 3 ĐIỀU KIỆN
     // =========================================================
 
     Page<Offering> findAllByTermAndClassGroupAndStatus(
