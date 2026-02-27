@@ -4,6 +4,8 @@ import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
+import BTEC.ASM.project.modules.academic.exception.offering.OfferingAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.offering.OfferingNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsException;
@@ -61,6 +63,19 @@ public class GlobalExceptionHandler {
 
         log.warn(
                 "TERM_EVENT | action=TERM | userId={} | status=FAIL | reason=TERM_NOT_FOUND",
+                userId
+        );
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OfferingNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOfferingNotFound(
+            OfferingNotFoundException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "OFFERING_EVENT | action=OFFERING | userId={} | status=FAIL | reason=OFFERING_NOT_FOUND",
                 userId
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
@@ -143,6 +158,20 @@ public class GlobalExceptionHandler {
 
 
     // ===== 409 =====
+
+    @ExceptionHandler(OfferingAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOfferingAlreadyExists(
+            OfferingAlreadyExistsException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "OFFERING_EVENT | action=OFFERING | userId={} | status=FAIL | reason=OFFERING_EXISTS",
+                userId
+        );
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(ClassGroupAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handleClassGroupAlreadyExists(
             ClassGroupAlreadyExistsException ex
