@@ -23,6 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.Arrays;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -209,7 +213,59 @@ public class GlobalExceptionHandler {
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    // ===== 400 =====
+    // ===== 400 – ENUM / PARAM TYPE MISMATCH =====
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException ex
+    ) {
+        String message;
+
+        if (ex.getRequiredType() != null && ex.getRequiredType().isEnum()) {
+            message = String.format(
+                    "Invalid value '%s' for parameter '%s'. Allowed values are: %s",
+                    ex.getValue(),
+                    ex.getName(),
+                    Arrays.toString(ex.getRequiredType().getEnumConstants())
+            );
+        } else {
+            message = String.format(
+                    "Invalid value '%s' for parameter '%s'",
+                    ex.getValue(),
+                    ex.getName()
+            );
+        }
+
+        log.warn(
+                "TYPE_MISMATCH | userId={} | message={}",
+                getIdFromAuthentication(),
+                message
+        );
+
+        return ResponseData.fail(message, HttpStatus.BAD_REQUEST);
+    }
+
+
+    // ===== 400 – VALIDATION BODY =====
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Object>> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex
+    ) {
+        String message = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation failed");
+
+        log.warn(
+                "VALIDATION_ERROR | userId={} | message={}",
+                getIdFromAuthentication(),
+                message
+        );
+
+        return ResponseData.fail(message, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Object>> handleBadRequest(
             IllegalArgumentException ex
@@ -234,16 +290,20 @@ public class GlobalExceptionHandler {
         return ResponseData.fail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    // ===== 500 =====
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Object>> handleRuntime(
-            RuntimeException ex
+    // ===== 500 – CATCH ALL =====
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Object>> handleException(
+            Exception ex
     ) {
-        log.warn(
-                "INTERNAL_SERVER_ERROR | userId={} | message={}",
+        log.error(
+                "INTERNAL_SERVER_ERROR | userId={}",
                 getIdFromAuthentication(),
                 ex
         );
-        return ResponseData.fail("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return ResponseData.fail(
+                "Internal server error",
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }
