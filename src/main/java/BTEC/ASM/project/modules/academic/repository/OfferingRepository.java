@@ -3,6 +3,7 @@ package BTEC.ASM.project.modules.academic.repository;
 import BTEC.ASM.project.modules.academic.entity.ClassGroup;
 import BTEC.ASM.project.modules.academic.entity.Subject;
 import BTEC.ASM.project.modules.academic.entity.Term;
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -71,7 +72,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long> {
     );
 
     Page<Offering> findAllByStatus(
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
@@ -99,19 +100,19 @@ public interface OfferingRepository extends JpaRepository<Offering, Long> {
 
     Page<Offering> findAllByTermAndStatus(
             Term term,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
     Page<Offering> findAllByClassGroupAndStatus(
             ClassGroup classGroup,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
     Page<Offering> findAllBySubjectAndStatus(
             Subject subject,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
@@ -122,21 +123,21 @@ public interface OfferingRepository extends JpaRepository<Offering, Long> {
     Page<Offering> findAllByTermAndClassGroupAndStatus(
             Term term,
             ClassGroup classGroup,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
     Page<Offering> findAllBySubjectAndTermAndStatus(
             Subject subject,
             Term term,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
     Page<Offering> findAllBySubjectAndClassGroupAndStatus(
             Subject subject,
             ClassGroup classGroup,
-            String status,
+            OfferingStatus status,
             Pageable pageable
     );
 
