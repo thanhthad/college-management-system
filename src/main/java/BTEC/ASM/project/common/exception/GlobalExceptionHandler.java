@@ -2,6 +2,7 @@ package BTEC.ASM.project.common.exception;
 
 import BTEC.ASM.project.common.response.ApiResponse;
 import BTEC.ASM.project.common.response.ResponseData;
+import BTEC.ASM.project.modules.academic.exception.InvalidDateRangeException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.offering.OfferingAlreadyExistsException;
@@ -242,6 +243,21 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseData.fail(message, HttpStatus.BAD_REQUEST);
+    }
+
+    // ===== BUSINESS RULE =====
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidDateRange(
+            InvalidDateRangeException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "OFFERING_EVENT | action=DATE_RANGE | userId={} | status=FAIL | reason=INVALID_DATE_RANGE",
+                userId
+        );
+
+        return ResponseData.fail(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
 
