@@ -21,7 +21,20 @@ public class TermDomainServiceImpl implements TermDomainService {
     }
 
     @Override
+    public Term getByTermId(Long termId) {
+        Term term = termRepository.findById(termId).orElseThrow(
+                () -> new TermNotFoundException("Term Not Found")
+        );
+        return term;
+    }
+
+    @Override
     public boolean existsByTermCode(String termCode) {
         return termRepository.existsByTermCode(termCode);
+    }
+
+    @Override
+    public boolean existsByTermId(Long termId) {
+        return termRepository.existsById(termId);
     }
 }

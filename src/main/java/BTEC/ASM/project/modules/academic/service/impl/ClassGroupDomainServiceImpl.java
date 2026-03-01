@@ -22,7 +22,20 @@ public class ClassGroupDomainServiceImpl implements ClassGroupDomainService {
     }
 
     @Override
+    public ClassGroup getByClassGroupId(Long groupId) {
+        ClassGroup classGroup = classGroupRepository.findById(groupId).orElseThrow(
+                () -> new ClassGroupNotFoundException("ClassGroup Not Found")
+        );
+        return classGroup;
+    }
+
+    @Override
     public boolean existsByClassGroupName(String groupName) {
         return classGroupRepository.existsByGroupName(groupName);
+    }
+
+    @Override
+    public boolean existsByClassGroupId(Long groupId) {
+        return classGroupRepository.existsById(groupId);
     }
 }

@@ -21,6 +21,19 @@ public class SubjectDomainImpl implements SubjectDomainService {
     }
 
     @Override
+    public Subject getBySubjectId(Long subjectId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow(
+                () -> new SubjectNotFoundException("Subject Not Found")
+        );
+        return subject;
+    }
+
+    @Override
+    public boolean existsBySubjectId(Long subjectId) {
+        return subjectRepository.existsById(subjectId);
+    }
+
+    @Override
     public boolean existsBySubjectCode(String subjectCode) {
         return subjectRepository.existsBySubjectCode(subjectCode);
     }
