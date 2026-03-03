@@ -44,21 +44,6 @@ public class GlobalExceptionHandler {
         return userDetails.getId();
     }
 
-    // ===== VALIDATION =====
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Object>> handleValidation(
-            MethodArgumentNotValidException ex
-    ) {
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                .findFirst()
-                .orElse("Validation failed");
-
-        return ResponseData.fail(message, HttpStatus.BAD_REQUEST);
-    }
-
     // ===== 404 =====
     @ExceptionHandler(TermNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleTermNotFound(
