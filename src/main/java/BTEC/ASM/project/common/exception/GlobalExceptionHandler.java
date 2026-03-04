@@ -6,6 +6,7 @@ import BTEC.ASM.project.modules.academic.exception.InvalidDateRangeException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.classgroup.ClassGroupNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.offering.OfferingAlreadyExistsException;
+import BTEC.ASM.project.modules.academic.exception.offering.OfferingConflictException;
 import BTEC.ASM.project.modules.academic.exception.offering.OfferingNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectNotFoundException;
@@ -17,6 +18,7 @@ import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -186,6 +188,39 @@ public class GlobalExceptionHandler {
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(OfferingConflictException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOfferingConflict(
+            OfferingConflictException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "OFFERING_EVENT | action=CREATE_OR_UPDATE | userId={} | status=FAIL | reason=OFFERING_CONFLICT",
+                userId
+        );
+
+        return ResponseData.fail(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.error(
+                "DATABASE_EVENT | action=JPA_SAVE | userId={} | status=FAIL | reason=DATA_INTEGRITY_VIOLATION",
+                userId,
+                ex
+        );
+
+        return ResponseData.fail(
+                "Data integrity violation",
+                HttpStatus.CONFLICT
+        );
+    }
+
     @ExceptionHandler(SubjectAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<Object>> handleSubjectAlreadyExists(
             SubjectAlreadyExistsException ex
