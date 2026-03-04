@@ -14,10 +14,16 @@ import java.time.LocalDate;
 @Builder
 public class OfferingResponse {
 
-    private Long subjectId;
-    private Long termId;
-    private Long classGroupId;
+    private String subjectCode;
+    private String subjectName;
+
+    private String termCode;
+    private String termName;
+
+    private String classGroupName;
+
     private LocalDate startDate;
     private LocalDate endDate;
+
     private OfferingStatus status;
 }
