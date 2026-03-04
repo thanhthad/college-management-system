@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.academic.dto.response;
 
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +14,16 @@ import java.time.LocalDate;
 @Builder
 public class OfferingResponse {
 
-    private Long subjectId;
-    private Long termId;
-    private Long classGroupId;
+    private String subjectCode;
+    private String subjectName;
+
+    private String termCode;
+    private String termName;
+
+    private String classGroupName;
+
     private LocalDate startDate;
     private LocalDate endDate;
-    private String status;
+
+    private OfferingStatus status;
 }

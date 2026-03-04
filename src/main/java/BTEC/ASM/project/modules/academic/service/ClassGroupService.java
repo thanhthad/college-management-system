@@ -2,19 +2,69 @@ package BTEC.ASM.project.modules.academic.service;
 
 import BTEC.ASM.project.modules.academic.dto.request.ClassGroupRequest;
 import BTEC.ASM.project.modules.academic.dto.response.ClassGroupResponse;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ClassGroupService {
 
-    ClassGroupResponse create(ClassGroupRequest request);
+    /* =========================
+     * CRUD
+     * ========================= */
 
-    List<ClassGroupResponse> getAll();
+    ClassGroupResponse create(ClassGroupRequest request,String ip);
 
-    ClassGroupResponse getById(Long id);
+    Page<ClassGroupResponse> getAll(Pageable pageable,String ip);
 
-    ClassGroupResponse update(Long id, ClassGroupRequest request);
+    ClassGroupResponse getByGroupName(String groupName, String ip);
 
-    void delete(Long id);
+    ClassGroupResponse updateByGroupName(
+            String groupName,
+            ClassGroupRequest request,
+            String ip
+    );
+
+    void deleteByGroupName(String groupName,String ip);
+
+    /* =========================
+     * SEARCH / FILTER
+     * ========================= */
+
+    Page<ClassGroupResponse> searchByGroupName(
+            String keyword,
+            Pageable pageable,
+            String ip
+    );
+
+    Page<ClassGroupResponse> searchByCampus(
+            String campusCode,
+            Pageable pageable,
+            String ip
+    );
+
+    Page<ClassGroupResponse> searchByDepartment(
+            String departmentCode,
+            Pageable pageable,
+            String ip
+    );
+
+    Page<ClassGroupResponse> searchByCampusAndDepartment(
+            String campusCode,
+            String departmentCode,
+            Pageable pageable,
+            String ip
+    );
+
+    Page<ClassGroupResponse> searchByGroupNameAndCampus(
+            String keyword,
+            String campusCode,
+            Pageable pageable,
+            String ip
+    );
+
+    Page<ClassGroupResponse> searchByGroupNameAndDepartment(
+            String keyword,
+            String departmentCode,
+            Pageable pageable,
+            String ip
+    );
 }

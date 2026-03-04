@@ -1,12 +1,24 @@
 package BTEC.ASM.project.modules.academic.entity;
 
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "offerings")
+@Table(name = "offerings",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uk_offering_subject_term_classgroup",
+                    columnNames = {
+                            "subject_id",
+                            "term_id",
+                            "class_group_id"
+                    }
+            )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,6 +46,7 @@ public class Offering {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private String status;
+    private OfferingStatus status;
 }

@@ -14,7 +14,7 @@ public class TermFakerService {
 
     public Term fake(int index) {
         LocalDate startDate = LocalDate.of(2025, 1, 1)
-                .plusMonths(index * 4);
+                .plusMonths(index * 4L);
 
         return Term.builder()
                 .termCode("TERM2025" + (char) ('A' + index))

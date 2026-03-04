@@ -12,6 +12,7 @@ import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -69,17 +70,23 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     /**
      * Find valid refresh token of user (optional)
      */
+    @Transactional()
     public RefreshToken findValidByUser(User user, String ip) {
-        Optional<RefreshToken> token =  refreshTokenRepository
+
+        return refreshTokenRepository
                 .findFirstByUserAndRevokedFalseAndExpiredAtAfterOrderByExpiredAtDesc(
                         user, LocalDateTime.now()
-                );
-        if(token.get() == null){
-            create(user,ip);
-        }else{
-            log.info("AUTH_EVENT | action=REFRESH_TOKEN_REFRESH | userId={} | tokenId={} | ip={}",token.get().getUser().getId(),token.get().getId(),ip);
-        }
-        return token.get();
+                )
+                .map(token -> {
+                    log.info(
+                            "AUTH_EVENT | action=REFRESH_TOKEN_REUSE | userId={} | tokenId={} | ip={}",
+                            user.getId(),
+                            token.getId(),
+                            ip
+                    );
+                    return token;
+                })
+                .orElseGet(() -> create(user, ip));
     }
 
     public String generateAccessToken(String refreshToken, String ip){
