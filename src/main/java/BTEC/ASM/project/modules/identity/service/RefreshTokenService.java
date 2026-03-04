@@ -1,71 +1,21 @@
 package BTEC.ASM.project.modules.identity.service;
-
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
-import BTEC.ASM.project.modules.identity.exception.RefreshTokenNotFoundException;
-import BTEC.ASM.project.modules.identity.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
-public class RefreshTokenService {
+public interface RefreshTokenService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    RefreshToken create(User user,String ip);
 
-    private static final long REFRESH_TOKEN_DAYS = 7;
+    RefreshToken verify(String token);
 
-    /**
-     * Create new refresh token
-     */
-    public RefreshToken create(User user) {
-        return refreshTokenRepository.save(
-                RefreshToken.builder()
-                        .token(UUID.randomUUID().toString())
-                        .user(user)
-                        .expiredAt(LocalDateTime.now().plusDays(REFRESH_TOKEN_DAYS))
-                        .revoked(false)
-                        .build()
-        );
-    }
+    RefreshToken findValidByUser(User user , String ip);
 
-    /**
-     * Verify refresh token by token string
-     */
-    public RefreshToken verify(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
+    void revoke(String refreshToken, String ip);
 
-        if (refreshToken.isRevoked()) {
-            throw new RefreshTokenNotFoundException("Refresh token revoked");
-        }
-
-        if (refreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new RefreshTokenNotFoundException("Refresh token expired");
-        }
-
-        return refreshToken;
-    }
-
-    /**
-     * Find valid refresh token of user (optional)
-     */
-    public Optional<RefreshToken> findOptionalValidByUser(User user) {
-        return refreshTokenRepository
-                .findFirstByUserAndRevokedFalseAndExpiredAtAfterOrderByExpiredAtDesc(
-                        user, LocalDateTime.now()
-                );
-    }
-
-    /**
-     * Revoke refresh token
-     */
-    public void revoke(RefreshToken refreshToken) {
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
-    }
+    String generateAccessToken(String refreshToken, String ip);
 }

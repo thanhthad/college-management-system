@@ -26,6 +26,7 @@ public class UserRole {
     @ManyToOne
     @MapsId("roleId")
     @JoinColumn(name = "role_id")
+    @JsonIgnore
     private Role role;
 }
 

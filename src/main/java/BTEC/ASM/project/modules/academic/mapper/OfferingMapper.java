@@ -10,21 +10,27 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface OfferingMapper {
 
-    // Map request → entity
+    // Request → Entity (CHỈ DÙNG CHO CREATE / UPDATE)
     @Mapping(source = "subjectId", target = "subject.id")
     @Mapping(source = "termId", target = "term.id")
     @Mapping(source = "classGroupId", target = "classGroup.id")
     Offering toEntity(OfferingRequest request);
 
-    // Map entity → response
-    @Mapping(source = "subject.id", target = "subjectId")
-    @Mapping(source = "term.id", target = "termId")
-    @Mapping(source = "classGroup.id", target = "classGroupId")
+    // Entity → Response (DÙNG CHO CLIENT)
+    @Mapping(source = "subject.subjectCode", target = "subjectCode")
+    @Mapping(source = "subject.subjectName", target = "subjectName")
+    @Mapping(source = "term.termCode", target = "termCode")
+    @Mapping(source = "term.termName", target = "termName")
+    @Mapping(source = "classGroup.groupName", target = "classGroupName")
     OfferingResponse toResponse(Offering entity);
 
-    @Mapping(target = "id",ignore = true)
+    // Update entity
+    @Mapping(target = "id", ignore = true)
     @Mapping(source = "subjectId", target = "subject.id")
     @Mapping(source = "termId", target = "term.id")
     @Mapping(source = "classGroupId", target = "classGroup.id")
-    void updateOfferingFromRequest(OfferingRequest request , @MappingTarget Offering entity);
+    void updateOfferingFromRequest(
+            OfferingRequest request,
+            @MappingTarget Offering entity
+    );
 }

@@ -2,6 +2,7 @@ package BTEC.ASM.project.modules.identity.security.userdetails;
 
 import BTEC.ASM.project.modules.identity.entity.User;
 import BTEC.ASM.project.modules.identity.entity.UserRole;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +13,19 @@ import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
 
+    @Setter
     private Long id;
+    @Setter
     private String userCode;
     private String email;
+
+    @Setter
     private String status;
+
+    @Setter
     private Collection<? extends GrantedAuthority> authorities;
+
+    public CustomUserDetails(){};
 
     public CustomUserDetails(User user) {
         this.id = user.getId();
@@ -31,7 +40,7 @@ public class CustomUserDetails implements UserDetails {
         if (roles == null) return Set.of();
 
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole().getCode()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole().getRoleCode()))
                 .collect(Collectors.toSet());
     }
 

@@ -1,54 +1,44 @@
 package BTEC.ASM.project.modules.identity.controller;
 
-import BTEC.ASM.project.modules.identity.entity.RefreshToken;
-import BTEC.ASM.project.modules.identity.entity.User;
-import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
+import BTEC.ASM.project.common.response.ResponseData;
+import BTEC.ASM.project.common.utils.IpUtils;
+import BTEC.ASM.project.modules.identity.dto.request.RefreshTokenRequest;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "")
+@Tag(name = "Authentication",description = "Auth APIs")
+
 public class AuthController {
 
     private final RefreshTokenService refreshTokenService;
-    private final JwtUtil jwtUtil;
 
     /**
      * 🔁 REFRESH ACCESS TOKEN
      */
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(
-            @RequestBody Map<String, String> request
+            @RequestBody RefreshTokenRequest request,
+            HttpServletRequest httpRequest
     ) {
-        String refreshToken = request.get("refreshToken");
+        String newAccessToken =
+                refreshTokenService.generateAccessToken(request.getRefreshToken(), IpUtils.getClientIp(httpRequest));
 
-        if (refreshToken == null || refreshToken.isBlank()) {
-            return ResponseEntity.status(401).body("Refresh token missing");
-        }
-
-        RefreshToken token = refreshTokenService.verify(refreshToken);
-        User user = token.getUser();
-
-        List<String> roles = user.getUserRoles()
-                .stream()
-                .map(ur -> ur.getRole().getRoleCode())
-                .toList();
-
-        String newAccessToken = jwtUtil.generateAccessToken(
-                user.getId(),
-                user.getUserCode(),
-                roles
+        return ResponseData.success(
+                newAccessToken,
+                "Create new access token successfully",
+                HttpStatus.OK
         );
-
-        return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken
-        ));
     }
 
     /**
@@ -56,15 +46,11 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @RequestBody Map<String, String> request
+            @RequestBody RefreshTokenRequest request,
+            HttpServletRequest httpRequest
     ) {
-        String refreshToken = request.get("refreshToken");
+        refreshTokenService.revoke(request.getRefreshToken(),IpUtils.getClientIp(httpRequest));
 
-        if (refreshToken != null) {
-            RefreshToken token = refreshTokenService.verify(refreshToken);
-            refreshTokenService.revoke(token);
-        }
-
-        return ResponseEntity.ok("Logged out");
+        return ResponseData.success(null,"Logout successfully",HttpStatus.OK);
     }
 }

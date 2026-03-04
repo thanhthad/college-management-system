@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.identity.security.oauth2;
 
+import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
 import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
@@ -59,8 +60,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         // REFRESH TOKEN
         RefreshToken refreshToken = refreshTokenService
-                .findOptionalValidByUser(user)
-                .orElseGet(() -> refreshTokenService.create(user));
+                .findValidByUser(user,IpUtils.getClientIp(request));
 
         // TRẢ JSON
         response.setContentType("application/json");

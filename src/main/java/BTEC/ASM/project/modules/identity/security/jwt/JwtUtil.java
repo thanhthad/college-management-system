@@ -1,7 +1,9 @@
 package BTEC.ASM.project.modules.identity.security.jwt;
 
+import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -36,6 +38,36 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public CustomUserDetails getUserDetails(String token) {
+        Claims claims = extractClaims(token);
+
+        Long userId = Long.parseLong(claims.getSubject());
+        String userCode = claims.get("userCode", String.class);
+        List<String> roles = claims.get("roles", List.class);
+
+        List<SimpleGrantedAuthority> authorities = roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
+        CustomUserDetails customUserDetails = new CustomUserDetails();
+        customUserDetails.setId(userId);
+        customUserDetails.setUserCode(userCode);
+        customUserDetails.setAuthorities(authorities);
+        customUserDetails.setStatus("ACTIVE");
+
+        return customUserDetails;
+    }
+
+    public String getUserCode(String token) {
+        return extractClaims(token).get("userCode", String.class);
+    }
+
+
+    public List<String> getRoles(String token) {
+        Claims claims = extractClaims(token);
+        return claims.get("roles", List.class);
+    }
+
 
     public Long getUserId(String token) {
         return Long.parseLong(extractClaims(token).getSubject());

@@ -1,5 +1,6 @@
 package BTEC.ASM.project.modules.academic.service.faker;
 
+import BTEC.ASM.project.modules.academic.enums.OfferingStatus;
 import com.github.javafaker.Faker;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +31,8 @@ public class OfferingFakerService {
                 .classGroup(classGroup)
                 .startDate(term.getStartDate())
                 .endDate(term.getEndDate())
-                .status(faker.options().option(
-                        "OPEN",
-                        "ONGOING",
-                        "CLOSED"
+                .status(faker.options().nextElement(
+                        OfferingStatus.values()
                 ))
                 .build();
     }
