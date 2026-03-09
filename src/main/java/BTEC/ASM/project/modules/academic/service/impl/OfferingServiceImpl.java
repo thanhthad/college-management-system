@@ -1,6 +1,6 @@
 package BTEC.ASM.project.modules.academic.service.impl;
 
-import BTEC.ASM.project.modules.academic.OfferingSpecification;
+import BTEC.ASM.project.modules.academic.specification.OfferingSpecification;
 import BTEC.ASM.project.modules.academic.dto.request.AdminOfferingFilter;
 import BTEC.ASM.project.modules.academic.dto.request.OfferingFilter;
 import BTEC.ASM.project.modules.academic.dto.request.OfferingRequest;

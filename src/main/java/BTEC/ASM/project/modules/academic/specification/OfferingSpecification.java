@@ -1,4 +1,4 @@
-package BTEC.ASM.project.modules.academic;
+package BTEC.ASM.project.modules.academic.specification;
 
 
 import BTEC.ASM.project.modules.academic.dto.request.AdminOfferingFilter;
