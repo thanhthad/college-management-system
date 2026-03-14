@@ -14,7 +14,7 @@ import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsExcepti
 import BTEC.ASM.project.modules.academic.exception.term.TermNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenExpiredException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNotFoundException;
-import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
+import BTEC.ASM.project.modules.identity.exception.user.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenRevokedException;
 import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import lombok.extern.slf4j.Slf4j;

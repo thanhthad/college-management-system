@@ -3,7 +3,7 @@ package BTEC.ASM.project.modules.identity.security.oauth2;
 import BTEC.ASM.project.common.utils.IpUtils;
 import BTEC.ASM.project.modules.identity.entity.RefreshToken;
 import BTEC.ASM.project.modules.identity.entity.User;
-import BTEC.ASM.project.modules.identity.exception.UserNotFoundException;
+import BTEC.ASM.project.modules.identity.exception.user.UserNotFoundException;
 import BTEC.ASM.project.modules.identity.repository.UserRepository;
 import BTEC.ASM.project.modules.identity.security.jwt.JwtUtil;
 import BTEC.ASM.project.modules.identity.service.RefreshTokenService;
