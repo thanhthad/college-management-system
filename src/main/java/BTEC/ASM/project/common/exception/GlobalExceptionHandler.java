@@ -12,6 +12,8 @@ import BTEC.ASM.project.modules.academic.exception.subject.SubjectAlreadyExistsE
 import BTEC.ASM.project.modules.academic.exception.subject.SubjectNotFoundException;
 import BTEC.ASM.project.modules.academic.exception.term.TermAlreadyExistsException;
 import BTEC.ASM.project.modules.academic.exception.term.TermNotFoundException;
+import BTEC.ASM.project.modules.enrollment.exception.EnrollmentAlreadyExistsException;
+import BTEC.ASM.project.modules.enrollment.exception.EnrollmentNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenExpiredException;
 import BTEC.ASM.project.modules.identity.exception.refresh_tokens.RefreshTokenNotFoundException;
 import BTEC.ASM.project.modules.identity.exception.user.UserNotFoundException;
@@ -102,6 +104,16 @@ public class GlobalExceptionHandler {
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(EnrollmentNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleEnrollmentNotFound(
+            EnrollmentNotFoundException ex
+    ) {
+        log.warn(
+                "ENROLLMENT_EVENT | action=ENROLLMENT | userId={} | status=FAIL | reason=ENROLLMENT_NOT_FOUND",
+                getIdFromAuthentication()
+        );
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleRefreshTokenNotFound(
@@ -159,6 +171,19 @@ public class GlobalExceptionHandler {
 
         log.warn(
                 "OFFERING_EVENT | action=OFFERING | userId={} | status=FAIL | reason=OFFERING_EXISTS",
+                userId
+        );
+        return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EnrollmentAlreadyExistsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleEnrollmentAlreadyExists(
+            EnrollmentAlreadyExistsException ex
+    ) {
+        Long userId = getIdFromAuthentication();
+
+        log.warn(
+                "ENROLLMENT_EVENT | action=ENROLLMENT | userId={} | status=FAIL | reason=ENROLLMENT_EXISTS",
                 userId
         );
         return ResponseData.fail(ex.getMessage(), HttpStatus.NOT_FOUND);

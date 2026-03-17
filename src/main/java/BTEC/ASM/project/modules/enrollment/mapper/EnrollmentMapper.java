@@ -1,6 +1,7 @@
 package BTEC.ASM.project.modules.enrollment.mapper;
 
 import BTEC.ASM.project.modules.enrollment.dto.request.EnrollmentRequest;
+import BTEC.ASM.project.modules.enrollment.dto.request.EnrollmentUpdateRequest;
 import BTEC.ASM.project.modules.enrollment.dto.response.EnrollmentResponse;
 import BTEC.ASM.project.modules.enrollment.entity.Enrollment;
 import org.mapstruct.Mapper;
@@ -30,7 +31,7 @@ public interface EnrollmentMapper {
     @Mapping(source = "offeringId", target = "offering.id")
     @Mapping(source = "studentUserId", target = "student.id")
     void updateEnrollmentFromRequest(
-            EnrollmentRequest request,
+            EnrollmentUpdateRequest request,
             @MappingTarget Enrollment entity
     );
 }

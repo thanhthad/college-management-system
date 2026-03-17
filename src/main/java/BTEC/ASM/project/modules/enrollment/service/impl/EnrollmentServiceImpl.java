@@ -104,14 +104,26 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
                 () -> new EnrollmentNotFoundException("Enrollment Not Found")
         );
-
-
-
+        enrollmentMapper.updateEnrollmentFromRequest(request,enrollment);
+        log.info(
+                "ENROLLMENT_EVENT | action=ENROLLMENT_UPDATE | userId={}  | ip={}",
+                getUserId(),
+                ip
+        );
+        return enrollmentMapper.toResponse(enrollment);
     }
 
     @Transactional
     @Override
     public void delete(Long id, String ip) {
-
+        Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
+                () -> new EnrollmentNotFoundException("Enrollment Not Found")
+        );
+        log.info(
+                "ENROLLMENT_EVENT | action=ENROLLMENT_DELETE | userId={}  | ip={}",
+                getUserId(),
+                ip
+        );
+        enrollmentRepository.delete(enrollment);
     }
 }
