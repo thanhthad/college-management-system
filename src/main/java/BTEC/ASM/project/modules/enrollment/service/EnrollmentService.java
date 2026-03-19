@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 public interface EnrollmentService {
     EnrollmentResponse create(EnrollmentRequest enrollmentRequest, String ip);
 
+    EnrollmentResponse getById(Long id,String ip);
+
     Page<EnrollmentResponse> getAll(Pageable pageable, String ip);
 
     EnrollmentResponse update(Long id, EnrollmentUpdateRequest enrollmentUpdateRequest, String ip);

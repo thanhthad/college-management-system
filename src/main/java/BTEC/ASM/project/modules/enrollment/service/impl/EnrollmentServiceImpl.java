@@ -17,7 +17,6 @@ import BTEC.ASM.project.modules.identity.security.userdetails.CustomUserDetails;
 import BTEC.ASM.project.modules.identity.service.UserServiceDomain;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -41,47 +40,65 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth == null || !auth.isAuthenticated()
-                || auth.getPrincipal().equals("anonymousUser")) {
+                || !(auth.getPrincipal() instanceof CustomUserDetails userDetails)) {
             return null;
         }
-
-        return ((CustomUserDetails) auth.getPrincipal()).getId();
+        return userDetails.getId();
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public EnrollmentResponse create(EnrollmentRequest request, String ip) {
-        try{
-            if (request.studentUserId() == null && request.userCode() == null) {
-                throw new EnrollmentNotFoundException("studentUserId or userCode must be provided");
-            }
-            User student;
-            if (request.studentUserId() != null) {
-                student = userServiceDomain.getByUserId(request.studentUserId());
-            } else {
-                student = userServiceDomain.getByUserCode(request.userCode());
-            }
-            Offering offering = offeringServiceDomain.getByOfferingId(request.offeringId());
-            Enrollment enrollment = Enrollment.builder()
-                    .offering(offering)
-                    .student(student)
-                    .enrollStatus(EnrollmentStatus.ENROLLED)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+        if (request.studentUserId() == null && request.userCode() == null) {
+            throw new IllegalArgumentException("studentUserId or userCode must be provided");
+        }
+        User student;
+        if (request.studentUserId() != null) {
+            student = userServiceDomain.getByUserId(request.studentUserId());
+        } else {
+            student = userServiceDomain.getByUserCode(request.userCode());
+        }
+        Offering offering = offeringServiceDomain.getByOfferingId(request.offeringId());
+        Enrollment enrollment = Enrollment.builder()
+                .offering(offering)
+                .student(student)
+                .enrollStatus(EnrollmentStatus.ENROLLED)
+                .createdAt(LocalDateTime.now())
+                .build();
 
-            Enrollment saved = enrollmentRepository.save(enrollment);
-
-            log.info(
-                    "ENROLLMENT_EVENT | action=ENROLLMENT_CREATED | userId={} | EnrollmentId={} | ip={}",
-                    getUserId(),
-                    saved.getId(),
-                    ip
-            );
-
-            return enrollmentMapper.toResponse(saved);
-        } catch (DataIntegrityViolationException ex){
+        if(enrollmentRepository.existsByStudentAndOffering(student,offering)){
             throw new EnrollmentAlreadyExistsException("Enrollment already exists");
         }
+        Enrollment saved = enrollmentRepository.save(enrollment);
+
+        log.info(
+                "ENROLLMENT_EVENT | action=ENROLLMENT_CREATED | userId={} | studentId={} | offeringId={} | enrollmentId={} | ip={}",
+                getUserId(),
+                student.getId(),
+                offering.getId(),
+                saved.getId(),
+                ip
+        );
+        return enrollmentMapper.toResponse(saved);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public EnrollmentResponse getById(Long id, String ip) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid id");
+        }
+        Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
+                () -> new EnrollmentNotFoundException("Enrollment Not Found")
+        );
+        log.info(
+                "ENROLLMENT_EVENT | action=ENROLLMENT_FETCHED | userId={} | enrollmentId={} | ip={}",
+                getUserId(),
+                id,
+                ip
+        );
+
+        return enrollmentMapper.toResponse(enrollment);
     }
 
     @Override
@@ -101,6 +118,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     @Override
     public EnrollmentResponse update(Long id , EnrollmentUpdateRequest request , String ip) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid id");
+        }
         Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
                 () -> new EnrollmentNotFoundException("Enrollment Not Found")
         );
@@ -110,12 +130,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 getUserId(),
                 ip
         );
-        return enrollmentMapper.toResponse(enrollment);
+        Enrollment updated = enrollmentRepository.save(enrollment);
+        return enrollmentMapper.toResponse(updated);
     }
 
     @Transactional
     @Override
     public void delete(Long id, String ip) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("Invalid id");
+        }
         Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
                 () -> new EnrollmentNotFoundException("Enrollment Not Found")
         );
@@ -124,6 +148,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 getUserId(),
                 ip
         );
-        enrollmentRepository.delete(enrollment);
+        if (enrollment.getEnrollStatus() == EnrollmentStatus.CANCELLED) {
+            throw new IllegalStateException("Enrollment already cancelled");
+        }
+        enrollment.setEnrollStatus(EnrollmentStatus.CANCELLED);
     }
 }
