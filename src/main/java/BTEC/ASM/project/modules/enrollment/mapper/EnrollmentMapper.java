@@ -21,17 +21,9 @@ public interface EnrollmentMapper {
     @Mapping(source = "offering.subject.subjectCode", target = "subjectCode")
     @Mapping(source = "offering.subject.subjectName", target = "subjectName")
     @Mapping(source = "offering.term.termCode", target = "termCode")
-    @Mapping(source = "offering.term.termName", target = "termCode")
+    @Mapping(source = "offering.term.termName", target = "termName")
     @Mapping(source = "offering.classGroup.groupName", target = "classGroupName")
     @Mapping(source = "offering.classGroup.campusCode", target = "classGroupCode")
     EnrollmentResponse toResponse(Enrollment enrollment);
 
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(source = "offeringId", target = "offering.id")
-    @Mapping(source = "studentUserId", target = "student.id")
-    void updateEnrollmentFromRequest(
-            EnrollmentUpdateRequest request,
-            @MappingTarget Enrollment entity
-    );
 }

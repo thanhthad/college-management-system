@@ -118,13 +118,16 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     @Override
     public EnrollmentResponse update(Long id , EnrollmentUpdateRequest request , String ip) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Invalid id");
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid enrollment id");
         }
         Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
                 () -> new EnrollmentNotFoundException("Enrollment Not Found")
         );
-        enrollmentMapper.updateEnrollmentFromRequest(request,enrollment);
+        if(enrollment.getEnrollStatus().equals(request.enrollStatus())){
+            throw new IllegalArgumentException("Enrollment status is unchanged");
+        }
+        enrollment.setEnrollStatus(request.enrollStatus());
         log.info(
                 "ENROLLMENT_EVENT | action=ENROLLMENT_UPDATE | userId={}  | ip={}",
                 getUserId(),
@@ -137,8 +140,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @Transactional
     @Override
     public void delete(Long id, String ip) {
-        if (id <= 0) {
-            throw new IllegalArgumentException("Invalid id");
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Invalid enrollment id");
         }
         Enrollment enrollment = enrollmentRepository.findById(id).orElseThrow(
                 () -> new EnrollmentNotFoundException("Enrollment Not Found")
